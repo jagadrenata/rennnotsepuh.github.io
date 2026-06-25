@@ -6,14 +6,26 @@ import { SiTailwindcss, SiSupabase, SiFirebase, SiCplusplus } from 'react-icons/
 export const datas = {
   projects: [
     {
+      title: 'DigiKarta',
+      description: 'website developer services in Yogyakarta.',
+      image: rennLogo,
+      link: 'https://digikarta.web.id',
+    },
+    {
+      title: 'QuoteIt',
+      description: 'Mental health tracker app.',
+      image: rennLogo,
+      link: 'https://quoteit.renn.biz.id',
+    },
+    {
       title: 'RenEnglish',
       description: 'A vocabulary learning web app with smart spaced repetition system.',
       image: rennLogo,
-      link: 'https://renenglish.my.id',
+      link: 'https://www.renenglish.my.id',
     },
     {
       title: 'Ocoffe',
-      description: 'Initial project using React and React Bootstrap.',
+      description: 'First project using React and React Bootstrap.',
       image: rennLogo,
       link: 'https://ocoffe.vercel.app',
     },
