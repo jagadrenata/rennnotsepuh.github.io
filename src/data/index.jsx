@@ -12,6 +12,12 @@ export const datas = {
       link: 'https://digikarta.web.id',
     },
     {
+      title: 'EduVive',
+      description: 'Super app education with 5 pillar for survive in real life.',
+      image: rennLogo,
+      link: 'https://eduvive.web.id',
+    },
+    {
       title: 'QuoteIt',
       description: 'Mental health tracker app.',
       image: rennLogo,
