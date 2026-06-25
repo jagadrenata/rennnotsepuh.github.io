@@ -17,6 +17,31 @@ export const datas = {
       image: rennLogo,
       link: 'https://eduvive.web.id',
     },
+    
+    {
+      title: 'Coffee website',
+      description: 'Website template for coffee shop.',
+      image: rennLogo,
+      link: 'https://jagadrenata.github.io/Start-from-zero/week1/Day3.html',
+    },
+    {
+      title: 'Simple Portofolio',
+      description: 'Brown monochrome portofolio website',
+      image: rennLogo,
+      link: 'https://jagadrenata.github.io/Start-from-zero/week1/Day2.html',
+    },
+    {
+      title: 'Music player',
+      description: 'Neumorphism music player .',
+      image: rennLogo,
+      link: 'https://jagadrenata.github.io/Start-from-zero/week2/Day3.html',
+    },
+    {
+      title: 'Neumorphism Portofolio',
+      description: 'Neumorphism portofolio website.',
+      image: rennLogo,
+      link: 'https://jagadrenata.github.io/Start-from-zero/week2/Day2.html',
+    },
     {
       title: 'QuoteIt',
       description: 'Mental health tracker app.',
@@ -59,7 +84,7 @@ export const datas = {
     },
     {
       name: 'Instagram',
-      link: 'https://instagram.com/rennnotsepuh',
+      link: 'https://instagram.com/jagadrenata',
       icon: <FaInstagram className='text-2xl' />,
     },
     {
