@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ARCHITECTURE TOOLS</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            min-height: 100%;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f0fdfa;
+            color: #1f2937;
+        }
+
+        :root {
+            --primary: #14b8a6;
+            --primary-dark: #0f766e;
+            --primary-darker: #115e59;
+            --primary-light: #ccfbf1;
+            --primary-soft: #f0fdfa;
+
+            --dark: #134e4a;
+
+            --sidebar: #0f766e;
+            --sidebar-dark: #115e59;
+            --sidebar-hover: #0d9488;
+
+            --white: #ffffff;
+            --text-muted: #64748b;
+        }
+
+
+        /* NAVBAR*/
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+
+            height: 60px;
+
+            background: var(--primary);
+            color: white;
+
+            display: flex;
+            align-items: center;
+
+            padding: 0 20px;
+
+            z-index: 1000;
+
+            box-shadow: 0 2px 10px rgba(15, 118, 110, 0.25);
+        }
+
+        .menu-button {
+            width: 42px;
+            height: 42px;
+
+            border: none;
+            border-radius: 8px;
+
+            background: transparent;
+            color: white;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 26px;
+            line-height: 1;
+
+            cursor: pointer;
+
+            margin-right: 12px;
+
+            transition:
+                background 0.2s ease,
+                transform 0.2s ease;
+        }
+
+        .menu-button:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .menu-button:active {
+            transform: scale(0.95);
+        }
+
+        .navbar-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+
+        /* SIDEBAR*/
+
+        .sidebar {
+            position: fixed;
+
+            top: 60px;
+            left: 0;
+            bottom: 0;
+
+            width: 270px;
+
+            background: var(--sidebar);
+            color: white;
+
+            overflow-y: auto;
+
+            transform: translateX(0);
+
+            transition: transform 0.3s ease;
+
+            z-index: 900;
+
+            box-shadow: 2px 0 10px rgba(15, 118, 110, 0.2);
+
+            padding-bottom: 20px;
+        }
+
+        .sidebar.closed {
+            transform: translateX(-100%);
+        }
+
+        .sidebar a {
+            display: block;
+
+            padding: 14px 20px;
+
+            color: white;
+            text-decoration: none;
+
+            border-left: 3px solid transparent;
+
+            transition:
+                background 0.2s ease,
+                border-color 0.2s ease;
+        }
+
+        .sidebar a:hover {
+            background: var(--sidebar-hover);
+            border-left-color: white;
+        }
+
+
+        /* SIDEBAR HEADER */
+
+        .sidebar-header {
+            padding: 22px 20px 18px;
+
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .sidebar-brand {
+            font-size: 20px;
+            font-weight: bold;
+
+            margin-bottom: 5px;
+        }
+
+        .sidebar-description {
+            font-size: 12px;
+            line-height: 1.5;
+
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+
+        /* SIDEBAR SECTION */
+
+        .sidebar-section-title {
+            padding: 18px 20px 8px;
+
+            font-size: 11px;
+            font-weight: bold;
+
+            text-transform: uppercase;
+            letter-spacing: 1px;
+
+            color: rgba(255, 255, 255, 0.65);
+        }
+
+
+        /* SPONSOR CARD*/
+
+        .sponsor-card {
+            margin: 10px 14px 18px;
+
+            padding: 16px;
+
+            background: rgba(255, 255, 255, 0.1);
+
+            border: 1px solid rgba(255, 255, 255, 0.15);
+
+            border-radius: 12px;
+
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .sponsor-label {
+            display: inline-block;
+
+            padding: 4px 8px;
+
+            margin-bottom: 10px;
+
+            background: var(--primary-light);
+            color: var(--primary-darker);
+
+            border-radius: 5px;
+
+            font-size: 10px;
+            font-weight: bold;
+
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .sponsor-title {
+            margin: 0 0 6px;
+
+            font-size: 16px;
+            font-weight: bold;
+
+            color: white;
+        }
+
+        .sponsor-title a {
+            display: inline;
+            padding: 0;
+
+            color: white;
+            border: none;
+
+            text-decoration: none;
+        }
+
+        .sponsor-title a:hover {
+            background: none;
+            border: none;
+
+            color: var(--primary-light);
+        }
+
+        .sponsor-text {
+            margin: 0;
+
+            font-size: 12px;
+            line-height: 1.55;
+
+            color: rgba(255, 255, 255, 0.82);
+        }
+
+        .sponsor-text a {
+            display: inline;
+            padding: 0;
+
+            color: var(--primary-light);
+
+            border: none;
+            text-decoration: none;
+
+            font-weight: bold;
+        }
+
+        .sponsor-text a:hover {
+            background: none;
+            border: none;
+
+            text-decoration: underline;
+        }
+
+        .sponsor-divider {
+            height: 1px;
+
+            margin: 12px 0;
+
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .sponsor-company {
+            font-size: 13px;
+            font-weight: bold;
+
+            color: white;
+        }
+
+        .sponsor-company a {
+            display: inline;
+            padding: 0;
+
+            color: var(--primary-light);
+
+            border: none;
+            text-decoration: none;
+        }
+
+        .sponsor-company a:hover {
+            background: none;
+            border: none;
+
+            text-decoration: underline;
+        }
+
+
+        /* MAIN CONTENT*/
+
+        .main {
+            margin-top: 60px;
+            margin-left: 270px;
+
+            min-height: calc(100vh - 120px);
+
+            padding: 30px;
+
+            transition: margin-left 0.3s ease;
+        }
+
+        .main.sidebar-closed {
+            margin-left: 0;
+        }
+
+
+        /* CONTENT CARD */
+
+        #content {
+            background: white;
+
+            border: 1px solid #ccfbf1;
+
+            border-radius: 12px;
+
+            padding: 25px;
+
+            box-shadow:
+                0 4px 15px rgba(15, 118, 110, 0.06);
+        }
+
+
+        /* FOOTER */
+
+        .footer {
+            margin-left: 270px;
+
+            min-height: 60px;
+
+            padding: 15px;
+
+            background: var(--dark);
+            color: white;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            transition: margin-left 0.3s ease;
+        }
+
+        .footer.sidebar-closed {
+            margin-left: 0;
+        }
+
+
+        /* MOBILE */
+
+        @media (max-width: 768px) {
+
+            .navbar {
+                padding: 0 15px;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar:not(.closed) {
+                transform: translateX(0);
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .main.sidebar-closed {
+                margin-left: 0;
+            }
+
+            .footer {
+                margin-left: 0;
+            }
+
+            .footer.sidebar-closed {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+
+    <nav class="navbar">
+
+        <button
+            id="menuButton"
+            class="menu-button"
+            type="button"
+            aria-label="Buka sidebar"
+            aria-expanded="true"
+            aria-controls="sidebar"
+        >
+            ☰
+        </button>
+
+        <div class="navbar-title">
+            Architecture Tools
+        </div>
+
+    </nav>
+
+
+    <!-- SIDEBAR-->
+
+    <aside id="sidebar" class="sidebar">
+
+        <div class="sidebar-header">
+
+            <div class="sidebar-brand">
+                Architecture Tools
+            </div>
+
+            <div class="sidebar-description">
+                Selamat datang di website kami.
+            </div>
+
+        </div>
+
+
+        <div class="sidebar-section-title">
+            Navigasi
+        </div>
+
+        <a href="#">Elevasi SIN COS TAN</a>
+        <a href="#">Luas Segitiga</a>
+        <a href="#">Pemetaan Pancar</a>
+        <a href="#">Polar warerpass</a>
+        <a href="#">Polar warerpass BLK MUKA</a>
+
+
+        <div class="sidebar-section-title">
+            Sponsor
+        </div>
+
+
+        <!-- SPONSOR -->
+
+        <div class="sponsor-card">
+
+            <div class="sponsor-label">
+                Disponsori oleh
+            </div>
+
+            <h3 class="sponsor-title">
+                <a
+                    href="https://nusantaracad.id"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    NusantaraCAD
+                </a>
+            </h3>
+
+            <p class="sponsor-text">
+                AI CAD buatan anak bangsa Indonesia untuk membantu
+                proses desain dan rekayasa secara lebih cerdas.
+            </p>
+
+            <div class="sponsor-divider"></div>
+
+            <div class="sponsor-company">
+                Bagian dari
+                <a
+                    href="https://digikarta.web.id"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    DigiKarta
+                </a>
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- ISI-->
+
+    <main id="main" class="main">
+
+        <div id="content">
+            Memuat isi...
+        </div>
+
+    </main>
+
+
+    <!-- FOOTER
+
+
+    <footer id="footer" class="footer">
+
+        <span>
+            © 2026 DigiKarta
+        </span>
+
+    </footer> -->
+
+    <script>
+
+        const sidebar = document.getElementById("sidebar");
+        const main = document.getElementById("main");
+        const footer = document.getElementById("footer");
+        const menuButton = document.getElementById("menuButton");
+        const content = document.getElementById("content");
+
+
+        /* HAMBURGER MENU */
+
+        menuButton.addEventListener("click", () => {
+
+            const isClosed =
+                sidebar.classList.toggle("closed");
+
+            main.classList.toggle(
+                "sidebar-closed",
+                isClosed
+            );
+
+            footer.classList.toggle(
+                "sidebar-closed",
+                isClosed
+            );
+
+            menuButton.setAttribute(
+                "aria-expanded",
+                String(!isClosed)
+            );
+
+            menuButton.setAttribute(
+                "aria-label",
+                isClosed
+                    ? "Buka sidebar"
+                    : "Tutup sidebar"
+            );
+
+        });
+
+
+        /* MEMUAT ddk.html */
+
+        fetch("ddk.html")
+
+            .then(response => {
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        `Gagal memuat ddk.html: ${response.status}`
+                    );
+
+                }
+
+                return response.text();
+
+            })
+
+            .then(html => {
+
+                content.innerHTML = html;
+
+            })
+
+            .catch(error => {
+
+                content.innerHTML = `
+
+                    <p>
+                        Gagal memuat ddk.html.
+                    </p>
+
+                    <p>
+                        ${error.message}
+                    </p>
+
+                `;
+
+            });
+
+    </script>
+
+</body>
+</html>
