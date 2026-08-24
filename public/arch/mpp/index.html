@@ -4,17 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ARCHITECTURE TOOLS</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/decimal.js/10.4.3/decimal.min.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js">
+    </script>
     <style>
         * {
             box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         html,
         body {
             margin: 0;
             min-height: 100%;
-            font-family: Arial, sans-serif;
-        }
-        body {
             background: #f0fdfa;
             color: #1f2937;
         }
@@ -207,6 +209,7 @@
             margin-left: 270px;
             min-height: calc(100vh - 120px);
             transition: margin-left 0.3s ease;
+            padding: 20px;
         }
         .main.sidebar-closed {
             margin-left: 0;
@@ -249,22 +252,13 @@
                 margin-left: 0;
             }
         }
-        * {
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        body {
-            background-color: #f4f7f6;
-            color: #333;
-            margin: 0;
-            padding: 20px;
-        }
         .container {
             max-width: 1400px;
             margin: 0 auto;
             background: #fff;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 30px;
         }
         h1,
         h2 {
@@ -286,12 +280,27 @@
             font-weight: bold;
             margin-right: 10px;
         }
+        .control-panel select {
+            padding: 8px 12px;
+            font-size: 14px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            background: #fff;
+            cursor: pointer;
+            min-width: 220px;
+        }
         .control-panel input {
             padding: 8px;
             font-size: 16px;
             border: 1px solid #bdc3c7;
             border-radius: 4px;
             width: 100px;
+        }
+        .control-panel .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
         }
         table {
             width: 100%;
@@ -323,6 +332,13 @@
         }
         .head-m {
             background-color: #e67e22 !important;
+            color: white;
+        }
+        .bg-correction {
+            background-color: #fdebd0 !important;
+        }
+        .head-correction {
+            background-color: #8e44ad !important;
             color: white;
         }
         input[type="number"] {
@@ -397,6 +413,10 @@
             font-weight: bold;
             color: #2c3e50;
         }
+        .analisis-table .correction-highlight {
+            background-color: #fef9e7;
+            font-weight: bold;
+        }
         .math-text {
             font-family: 'Courier New', Courier, monospace;
             font-weight: 600;
@@ -429,6 +449,27 @@
             max-width: 900px;
             height: 400px !important;
             width: 100% !important;
+        }
+        .info-banner {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            font-weight: 500;
+            display: none;
+        }
+        .info-banner.show {
+            display: block;
+        }
+        .info-banner.option1 {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .info-banner.option2 {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
         }
     </style>
 </head>
@@ -484,754 +525,816 @@
     </aside>
     <main id="main" class="main">
         <div id="content">
-            <!DOCTYPE html>
-            <html lang="id">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Kalkulator Menyipat Datar Memanjang - Validasi BT</title>
-                <script src="https://cdnjs.cloudflare.com/ajax/libs/decimal.js/10.4.3/decimal.min.js">
-                </script>
-                <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js">
-                </script>
-                <style>
-                    * {
-                        box-sizing: border-box;
-                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                    }
-                    body {
-                        background-color: #f4f7f6;
-                        color: #333;
-                        margin: 0;
-                        padding: 20px;
-                    }
-                    .container {
-                        max-width: 1400px;
-                        margin: 0 auto;
-                        padding: 30px;
-                        background: #fff;
-                        border-radius: 8px;
-                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-                    }
-                    h1,
-                    h2 {
-                        text-align: center;
-                        color: #2c3e50;
-                    }
-                    .control-panel {
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        margin-bottom: 20px;
-                        padding: 15px;
-                        background-color: #ecf0f1;
-                        border-radius: 6px;
-                        flex-wrap: wrap;
-                        gap: 10px;
-                    }
-                    .control-panel label {
-                        font-weight: bold;
-                        margin-right: 10px;
-                    }
-                    .control-panel input {
-                        padding: 8px;
-                        font-size: 16px;
-                        border: 1px solid #bdc3c7;
-                        border-radius: 4px;
-                        width: 100px;
-                    }
-                    table {
-                        width: 100%;
-                        border-collapse: collapse;
-                        margin-bottom: 20px;
-                        font-size: 14px;
-                    }
-                    th,
-                    td {
-                        border: 1px solid #dfe6e9;
-                        padding: 8px 5px;
-                        text-align: center;
-                        vertical-align: middle;
-                    }
-                    th {
-                        background-color: #34495e;
-                        color: white;
-                        font-weight: 600;
-                    }
-                    .bg-b {
-                        background-color: #e3f2fd;
-                    }
-                    .bg-m {
-                        background-color: #fff3e0;
-                    }
-                    .head-b {
-                        background-color: #1abc9c !important;
-                        color: white;
-                    }
-                    .head-m {
-                        background-color: #e67e22 !important;
-                        color: white;
-                    }
-                    input[type="number"] {
-                        width: 75px;
-                        padding: 5px;
-                        border: 1px solid #ccc;
-                        border-radius: 3px;
-                        text-align: center;
-                        background: #fff;
-                        transition: background-color 0.3s;
-                    }
-                    .btn {
-                        padding: 10px 20px;
-                        border: none;
-                        border-radius: 5px;
-                        cursor: pointer;
-                        font-size: 14px;
-                        font-weight: bold;
-                        transition: 0.3s;
-                    }
-                    .btn-primary {
-                        background-color: #3498db;
-                        color: white;
-                    }
-                    .btn-primary:hover {
-                        background-color: #2980b9;
-                    }
-                    .btn-success {
-                        background-color: #2ecc71;
-                        color: white;
-                        font-size: 16px;
-                        padding: 12px 24px;
-                    }
-                    .btn-success:hover {
-                        background-color: #27ae60;
-                    }
-                    .btn-danger {
-                        background-color: #e74c3c;
-                        color: white;
-                        padding: 5px 10px;
-                    }
-                    .btn-danger:hover {
-                        background-color: #c0392b;
-                    }
-                    .result-section {
-                        display: none;
-                        margin-top: 40px;
-                        border-top: 2px dashed #bdc3c7;
-                        padding-top: 20px;
-                    }
-                    .result-section h2 {
-                        color: #27ae60;
-                    }
-                    .analisis-table {
-                        width: 100%;
-                        border-collapse: collapse;
-                        margin-bottom: 25px;
-                        background: #f9fbfd;
-                        font-size: 13px;
-                    }
-                    .analisis-table th {
-                        background-color: #5d6d7e;
-                        color: white;
-                        padding: 10px;
-                    }
-                    .analisis-table td {
-                        padding: 8px;
-                        border: 1px solid #d0d7de;
-                    }
-                    .analisis-table .sub-header {
-                        background-color: #d5dbdb;
-                        font-weight: bold;
-                        color: #2c3e50;
-                    }
-                    .math-text {
-                        font-family: 'Courier New', Courier, monospace;
-                        font-weight: 600;
-                        color: #c0392b;
-                        display: inline-block;
-                    }
-                    .titik-badge {
-                        display: inline-block;
-                        background-color: #34495e;
-                        color: white;
-                        padding: 2px 8px;
-                        border-radius: 3px;
-                        font-size: 12px;
-                        margin-right: 5px;
-                        font-weight: normal;
-                    }
-                    .error-bg {
-                        background-color: #f8d7da !important;
-                        border-color: #f5c6cb;
-                    }
-                    .error-text {
-                        color: #dc3545;
-                        font-weight: bold;
-                    }
-                    .chart-container {
-                        margin-top: 30px;
-                        text-align: center;
-                    }
-                    .chart-container canvas {
-                        max-width: 900px;
-                        height: 400px !important;
-                        width: 100% !important;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <h1>Pengukuran Menyipat Datar Memanjang</h1>
-                    <div class="control-panel">
-                        <div>
-                            <label for="nomorAbsen">Nomor Absen (Elevasi Awal):</label>
-                            <input type="number" id="nomorAbsen" value="19" step="any">
-                        </div>
-                        <div>
-                            <button class="btn btn-primary" onclick="tambahBaris()">+ Tambah Titik</button>
-                            <button class="btn btn-success" onclick="prosesHitung()">Hitung Sekarang</button>
-                        </div>
+            <div class="container">
+                <h1>Pengukuran Menyipat Datar Memanjang</h1>
+                <div class="control-panel">
+                    <div class="control-group">
+                        <label for="nomorAbsen">Nomor Absen (Elevasi Awal):</label>
+                        <input type="number" id="nomorAbsen" value="19" step="any">
                     </div>
-                    <div style="overflow-x: auto;">
-                        <table id="inputTable">
-                            <thead>
-                                <tr>
-                                    <th rowspan="2">No</th>
-                                    <th rowspan="2">TP</th>
-                                    <th colspan="4" class="head-b">Belakang (B)</th>
-                                    <th colspan="4" class="head-m">Muka (M)</th>
-                                    <th rowspan="2">Aksi</th>
-                                </tr>
-                                <tr>
-                                    <th class="bg-b">BA</th>
-                                    <th class="bg-b">BT</th>
-                                    <th class="bg-b">BB</th>
-                                    <th class="bg-b">Jarak</th>
-                                    <th class="bg-m">BA</th>
-                                    <th class="bg-m">BT</th>
-                                    <th class="bg-m">BB</th>
-                                    <th class="bg-m">Jarak</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
+                    <div class="control-group">
+                        <label for="jenisPengukuran">Jenis Pengukuran:</label>
+                        <select id="jenisPengukuran" onchange="toggleJenisPengukuran()">
+                            <option value="pembenahan">Ukur dengan pembenahan BT yang salah</option>
+                            <option value="koreksi">Ukur dengan koreksi tanpa pembenahan BT</option>
+                        </select>
                     </div>
-                    <div class="result-section" id="resultSection">
-                        <h2>Hasil Perhitungan</h2>
-                        <div style="overflow-x: auto;">
-                            <table class="result-table" style="width:100%; border-collapse:collapse;">
-                                <thead>
-                                    <tr>
-                                        <th rowspan="2">Titik Ke-</th>
-                                        <th rowspan="2">TP</th>
-                                        <th colspan="3" class="head-b">Belakang (B)</th>
-                                        <th colspan="3" class="head-m">Muka (M)</th>
-                                        <th rowspan="2">Jarak Optis<br>Belakang</th>
-                                        <th rowspan="2">Jarak Optis<br>Muka</th>
-                                        <th rowspan="2">Total<br>Jarak Optis</th>
-                                        <th rowspan="2">Beda Tinggi</th>
-                                        <th rowspan="2">Tinggi Titik</th>
-                                    </tr>
-                                    <tr>
-                                        <th class="bg-b">BA</th>
-                                        <th class="bg-b">BT</th>
-                                        <th class="bg-b">BB</th>
-                                        <th class="bg-m">BA</th>
-                                        <th class="bg-m">BT</th>
-                                        <th class="bg-m">BB</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="resultBody"></tbody>
-                            </table>
-                        </div>
-                        <div class="chart-container">
-                            <h3>Grafik Profil Memanjang</h3>
-                            <canvas id="profilChart"></canvas>
-                        </div>
-                    </div>
-                    <div class="result-section" id="analisisSection">
-                        <h2>Analisis Perhitungan</h2>
-                        <div id="analisisBody" style="overflow-x:auto;"></div>
+                    <div class="control-group">
+                        <button class="btn btn-primary" onclick="tambahBaris()">+ Tambah Titik</button>
+                        <button class="btn btn-success" onclick="prosesHitung()">Hitung Sekarang</button>
                     </div>
                 </div>
-                <script>
-                    let defaultData = [{
-                        TP: 132,
-                        b: {
-                            ba: 1.378,
-                            bt: 1.328,
-                            bb: 1.278,
-                            jarakAsli: 15
-                        },
-                        m: {
-                            ba: 1.366,
-                            bt: 1.307,
-                            bb: 1.248,
-                            jarakAsli: 15
-                        }
-                    }, {
-                        TP: 133,
-                        b: {
-                            ba: 1.523,
-                            bt: 1.448,
-                            bb: 1.374,
-                            jarakAsli: 15
-                        },
-                        m: {
-                            ba: 1.345,
-                            bt: 1.271,
-                            bb: 1.198,
-                            jarakAsli: 15
-                        }
-                    }, {
-                        TP: 132,
-                        b: {
-                            ba: 1.404,
-                            bt: 1.328,
-                            bb: 1.253,
-                            jarakAsli: 15
-                        },
-                        m: {
-                            ba: 1.438,
-                            bt: 1.364,
-                            bb: 1.29,
-                            jarakAsli: 15
-                        }
-                    }, {
-                        TP: 133,
-                        b: {
-                            ba: 1.335,
-                            bt: 1.26,
-                            bb: 1.185,
-                            jarakAsli: 15
-                        },
-                        m: {
-                            ba: 1.455,
-                            bt: 1.38,
-                            bb: 1.306,
-                            jarakAsli: 15
-                        }
-                    }, {
-                        TP: 133,
-                        b: {
-                            ba: 1.31,
-                            bt: 1.265,
-                            bb: 1.221,
-                            jarakAsli: 15
-                        },
-                        m: {
-                            ba: 1.477,
-                            bt: 1.435,
-                            bb: 1.39,
-                            jarakAsli: 15
-                        }
-                    }, {
-                        TP: 132,
-                        b: {
-                            ba: 1.316,
-                            bt: 1.262,
-                            bb: 1.209,
-                            jarakAsli: 15
-                        },
-                        m: {
-                            ba: 1.46,
-                            bt: 1.405,
-                            bb: 1.35,
-                            jarakAsli: 15
-                        }
-                    }, {
-                        TP: 134,
-                        b: {
-                            ba: 1.242,
-                            bt: 1.167,
-                            bb: 1.093,
-                            jarakAsli: 15
-                        },
-                        m: {
-                            ba: 1.406,
-                            bt: 1.331,
-                            bb: 1.257,
-                            jarakAsli: 15
-                        }
-                    }, {
-                        TP: 133.5,
-                        b: {
-                            ba: 1.459,
-                            bt: 1.384,
-                            bb: 1.31,
-                            jarakAsli: 15
-                        },
-                        m: {
-                            ba: 1.394,
-                            bt: 1.319,
-                            bb: 1.245,
-                            jarakAsli: 15
-                        }
-                    }, {
-                        TP: 133.5,
-                        b: {
-                            ba: 1.394,
-                            bt: 1.319,
-                            bb: 1.245,
-                            jarakAsli: 15
-                        },
-                        m: {
-                            ba: 1.462,
-                            bt: 1.388,
-                            bb: 1.314,
-                            jarakAsli: 15
-                        }
-                    }, {
-                        TP: 133.5,
-                        b: {
-                            ba: 1.405,
-                            bt: 1.366,
-                            bb: 1.328,
-                            jarakAsli: 8.75
-                        },
-                        m: {
-                            ba: 0.98,
-                            bt: 0.931,
-                            bb: 0.883,
-                            jarakAsli: 8.75
-                        }
-                    }];
-                    let profilChart = null;
-
-                    function renderInputTable() {
-                        const tbody = document.querySelector("#inputTable tbody");
-                        tbody.innerHTML = "";
-                        defaultData.forEach((row, index) => {
-                            tambahBarisHTML(index + 1, row);
-                        });
-                        validasiSemuaBT();
-                    }
-
-                    function tambahBarisHTML(index, row = {
-                        TP: '',
-                        b: {
-                            ba: '',
-                            bt: '',
-                            bb: '',
-                            jarakAsli: ''
-                        },
-                        m: {
-                            ba: '',
-                            bt: '',
-                            bb: '',
-                            jarakAsli: ''
-                        }
-                    }) {
-                        const tbody = document.querySelector("#inputTable tbody");
-                        const tr = document.createElement("tr");
-                        tr.innerHTML = `
-                            <td class="row-index">${index}</td>
-                            <td><input type="number" step="any" class="in-tp" value="${row.TP}"></td>
-                            <td class="bg-b"><input type="number" step="any" class="in-b-ba" value="${row.b.ba}"></td>
-                            <td class="bg-b"><input type="number" step="any" class="in-b-bt" value="${row.b.bt}"></td>
-                            <td class="bg-b"><input type="number" step="any" class="in-b-bb" value="${row.b.bb}"></td>
-                            <td class="bg-b"><input type="number" step="any" class="in-b-jarak" value="${row.b.jarakAsli}"></td>
-                            <td class="bg-m"><input type="number" step="any" class="in-m-ba" value="${row.m.ba}"></td>
-                            <td class="bg-m"><input type="number" step="any" class="in-m-bt" value="${row.m.bt}"></td>
-                            <td class="bg-m"><input type="number" step="any" class="in-m-bb" value="${row.m.bb}"></td>
-                            <td class="bg-m"><input type="number" step="any" class="in-m-jarak" value="${row.m.jarakAsli}"></td>
-                            <td><button class="btn btn-danger" onclick="hapusBaris(this)">X</button></td>
-                        `;
-                        tbody.appendChild(tr);
-                        validasiBaris(tr);
-                    }
-
-                    function tambahBaris() {
-                        const rowCount = document.querySelectorAll("#inputTable tbody tr").length;
-                        tambahBarisHTML(rowCount + 1);
-                        updateNomorBaris();
-                    }
-
-                    function hapusBaris(btn) {
-                        const row = btn.closest("tr");
-                        row.remove();
-                        updateNomorBaris();
-                    }
-
-                    function updateNomorBaris() {
-                        const rows = document.querySelectorAll("#inputTable tbody tr");
-                        rows.forEach((row, index) => {
-                            row.querySelector(".row-index").innerText = index + 1;
-                        });
-                    }
-
-                    function validasiBT(ba, bb, inputBt) {
-                        const baDec = new Decimal(ba || 0);
-                        const bbDec = new Decimal(bb || 0);
-                        const rataRata = baDec.plus(bbDec).div(2).toDecimalPlaces(3, Decimal.ROUND_HALF_UP);
-                        const btInput = new Decimal(inputBt || 0);
-                        if (!btInput.isNaN() && !btInput.equals(rataRata)) {
-                            return {
-                                valid: false,
-                                benar: rataRata.toFixed(3)
-                            };
-                        }
-                        return {
-                            valid: true,
-                            benar: null
-                        };
-                    }
-
-                    function validasiBaris(tr) {
-                        const baB = tr.querySelector('.in-b-ba').value;
-                        const bbB = tr.querySelector('.in-b-bb').value;
-                        const btB = tr.querySelector('.in-b-bt');
-                        const baM = tr.querySelector('.in-m-ba').value;
-                        const bbM = tr.querySelector('.in-m-bb').value;
-                        const btM = tr.querySelector('.in-m-bt');
-                        const hasilB = validasiBT(baB, bbB, btB.value);
-                        if (!hasilB.valid) {
-                            btB.classList.add('error-bg');
-                            btB.title = `Nilai benar: ${hasilB.benar}`;
-                        } else {
-                            btB.classList.remove('error-bg');
-                            btB.removeAttribute('title');
-                        }
-                        const hasilM = validasiBT(baM, bbM, btM.value);
-                        if (!hasilM.valid) {
-                            btM.classList.add('error-bg');
-                            btM.title = `Nilai benar: ${hasilM.benar}`;
-                        } else {
-                            btM.classList.remove('error-bg');
-                            btM.removeAttribute('title');
-                        }
-                    }
-
-                    function validasiSemuaBT() {
-                        document.querySelectorAll('#inputTable tbody tr').forEach(tr => validasiBaris(tr));
-                    }
-
-                    function hitungJarakOptis(ba, bb) {
-                        const baDec = new Decimal(ba || 0);
-                        const bbDec = new Decimal(bb || 0);
-                        return baDec.minus(bbDec).times(100);
-                    }
-
-                    function prosesHitung() {
-                        validasiSemuaBT();
-                        const nomorAbsen = document.getElementById("nomorAbsen").value || 0;
-                        const rows = document.querySelectorAll("#inputTable tbody tr");
-                        let dataInput = [];
-                        rows.forEach(row => {
-                            const baB = row.querySelector('.in-b-ba').value;
-                            const bbB = row.querySelector('.in-b-bb').value;
-                            const btBInput = row.querySelector('.in-b-bt');
-                            let btBValue = btBInput.value;
-                            const checkB = validasiBT(baB, bbB, btBValue);
-                            if (!checkB.valid) {
-                                btBValue = checkB.benar;
-                            }
-                            const baM = row.querySelector('.in-m-ba').value;
-                            const bbM = row.querySelector('.in-m-bb').value;
-                            const btMInput = row.querySelector('.in-m-bt');
-                            let btMValue = btMInput.value;
-                            const checkM = validasiBT(baM, bbM, btMValue);
-                            if (!checkM.valid) {
-                                btMValue = checkM.benar;
-                            }
-                            dataInput.push({
-                                TP: row.querySelector(".in-tp").value,
-                                b: {
-                                    ba: baB,
-                                    bt: btBValue,
-                                    bb: bbB
-                                },
-                                m: {
-                                    ba: baM,
-                                    bt: btMValue,
-                                    bb: bbM
-                                }
-                            });
-                        });
-                        const hasilJarakOptis = dataInput.map((item, index) => {
-                            const jarakOptisB = hitungJarakOptis(item.b.ba, item.b.bb);
-                            const jarakOptisM = hitungJarakOptis(item.m.ba, item.m.bb);
-                            const totalJarakOptis = jarakOptisB.plus(jarakOptisM);
-                            const btB = new Decimal(item.b.bt || 0);
-                            const btM = new Decimal(item.m.bt || 0);
-                            const bedaTinggi = btB.minus(btM);
-                            return {
-                                ...item,
-                                index: index + 1,
-                                jarakOptisB: jarakOptisB.toFixed(3),
-                                jarakOptisM: jarakOptisM.toFixed(3),
-                                totalJarakOptis: totalJarakOptis.toFixed(3),
-                                bedaTinggi: bedaTinggi.toFixed(3)
-                            };
-                        });
-                        let tinggiSaatIni = new Decimal(nomorAbsen);
-                        const hasilAkhir = hasilJarakOptis.map(item => {
-                            const tinggiSebelumnya = tinggiSaatIni.toFixed(3);
-                            const BT = new Decimal(item.bedaTinggi);
-                            tinggiSaatIni = tinggiSaatIni.plus(BT);
-                            return {
-                                ...item,
-                                tinggiSebelumnya: tinggiSebelumnya,
-                                tinggiTitik: tinggiSaatIni.toFixed(3)
-                            };
-                        });
-                        tampilkanHasil(hasilAkhir, nomorAbsen);
-                    }
-
-                    function tampilkanHasil(data, elevasiAwal) {
-                        const resultBody = document.getElementById("resultBody");
-                        const analisisBody = document.getElementById("analisisBody");
-                        resultBody.innerHTML = "";
-                        analisisBody.innerHTML = "";
-                        data.forEach(item => {
-                            const tr = document.createElement("tr");
-                            tr.innerHTML = `
-                                <td>${item.index}</td>
-                                <td>${item.TP}</td>
-                                <td class="bg-b">${item.b.ba || 0}</td>
-                                <td class="bg-b">${item.b.bt || 0}</td>
-                                <td class="bg-b">${item.b.bb || 0}</td>
-                                <td class="bg-m">${item.m.ba || 0}</td>
-                                <td class="bg-m">${item.m.bt || 0}</td>
-                                <td class="bg-m">${item.m.bb || 0}</td>
-                                <td>${item.jarakOptisB}</td>
-                                <td>${item.jarakOptisM}</td>
-                                <td style="background-color:#e8f4f8; font-weight:bold;">${item.totalJarakOptis}</td>
-                                <td>${item.bedaTinggi}</td>
-                                <td style="background-color:#e8f4f8; font-weight:bold;">${item.tinggiTitik}</td>
-                            `;
-                            resultBody.appendChild(tr);
-                        });
-                        let analisisHTML = '';
-                        analisisHTML += `<table class="analisis-table">
-                            <thead><tr><th colspan="3">Beda Tinggi (Δh) = Benang Tengah Belakang - Benang Tengah Muka</th></tr></thead>
-                            <tbody><tr class="sub-header"><td>Titik</td><td>Perhitungan</td><td>Hasil</td></tr>`;
-                        data.forEach(item => {
-                            analisisHTML += `<tr>
-                                <td><span class="titik-badge">Titik ${item.index}</span></td>
-                                <td><span class="math-text">${item.b.bt || 0} - ${item.m.bt || 0}</span></td>
-                                <td>${item.bedaTinggi}</td>
-                            </tr>`;
-                        });
-                        analisisHTML += `</tbody></table>`;
-                        analisisHTML += `<table class="analisis-table">
-                            <thead><tr><th colspan="4">Jarak Optis = (BA - BB) × 100</th></tr></thead>
-                            <tbody><tr class="sub-header"><td>Titik</td><td>Belakang (B)</td><td>Muka (M)</td><td>Total</td></tr>`;
-                        data.forEach(item => {
-                            analisisHTML += `<tr>
-                                <td><span class="titik-badge">Titik ${item.index}</span></td>
-                                <td><span class="math-text">(${item.b.ba || 0} - ${item.b.bb || 0}) × 100 = ${item.jarakOptisB}</span></td>
-                                <td><span class="math-text">(${item.m.ba || 0} - ${item.m.bb || 0}) × 100 = ${item.jarakOptisM}</span></td>
-                                <td><strong>${item.totalJarakOptis}</strong></td>
-                            </tr>`;
-                        });
-                        analisisHTML += `</tbody></table>`;
-                        analisisHTML += `<table class="analisis-table">
-                            <thead><tr><th colspan="4">Tinggi Titik = Tinggi Sebelumnya + Beda Tinggi</th></tr></thead>
-                            <tbody><tr class="sub-header"><td>Titik</td><td>Tinggi Sebelumnya</td><td>Beda Tinggi</td><td>Tinggi Titik</td></tr>`;
-                        data.forEach(item => {
-                            const signBeda = new Decimal(item.bedaTinggi).isNegative() ? '-' : '+';
-                            const absBT = new Decimal(item.bedaTinggi).abs().toFixed(3);
-                            analisisHTML += `<tr>
-                                <td><span class="titik-badge">Titik ${item.index}</span></td>
-                                <td>${item.tinggiSebelumnya}</td>
-                                <td><span class="math-text">${signBeda} ${absBT}</span></td>
-                                <td><strong>${item.tinggiTitik}</strong></td>
-                            </tr>`;
-                        });
-                        analisisHTML += `</tbody></table>`;
-                        analisisBody.innerHTML = analisisHTML;
-                        renderChart(data, elevasiAwal);
-                        document.getElementById("resultSection").style.display = "block";
-                        document.getElementById("analisisSection").style.display = "block";
-                        document.getElementById("resultSection").scrollIntoView({
-                            behavior: 'smooth'
-                        });
-                    }
-
-                    function renderChart(data, elevasiAwal) {
-                        const ctx = document.getElementById("profilChart").getContext("2d");
-                        if (profilChart) {
-                            profilChart.destroy();
-                        }
-                        const points = [{
-                            x: 0,
-                            y: parseFloat(elevasiAwal)
-                        }];
-                        let cumulativeDistance = new Decimal(0);
-                        data.forEach(item => {
-                            const totalJarak = new Decimal(item.totalJarakOptis || 0);
-                            cumulativeDistance = cumulativeDistance.plus(totalJarak);
-                            points.push({
-                                x: cumulativeDistance.toNumber(),
-                                y: parseFloat(item.tinggiTitik)
-                            });
-                        });
-                        profilChart = new Chart(ctx, {
-                            type: 'line',
-                            data: {
-                                datasets: [{
-                                    label: 'Tinggi Titik',
-                                    data: points,
-                                    borderColor: '#1abc9c',
-                                    backgroundColor: 'rgba(26, 188, 156, 0.2)',
-                                    tension: 0.3,
-                                    pointRadius: 4,
-                                    pointHoverRadius: 6,
-                                    fill: true
-                                }]
-                            },
-                            options: {
-                                plugins: {
-                                    title: {
-                                        display: true,
-                                        text: 'Grafik Profil Memanjang'
-                                    },
-                                    tooltip: {
-                                        callbacks: {
-                                            label: function(context) {
-                                                return `Jarak: ${context.parsed.x.toFixed(3)} m, Tinggi: ${context.parsed.y.toFixed(3)} m`;
-                                            }
-                                        }
-                                    }
-                                },
-                                scales: {
-                                    x: {
-                                        type: 'linear',
-                                        title: {
-                                            display: true,
-                                            text: 'Jarak Optis (m)'
-                                        }
-                                    },
-                                    y: {
-                                        title: {
-                                            display: true,
-                                            text: 'Tinggi Titik (m)'
-                                        }
-                                    }
-                                }
-                            }
-                        });
-                    }
-                    document.addEventListener('input', function(e) {
-                        if (e.target && e.target.matches('#inputTable input')) {
-                            const tr = e.target.closest('tr');
-                            if (tr) validasiBaris(tr);
-                        }
-                    });
-                    window.onload = renderInputTable;
-                </script>
-            </body>
-            </html>
+                <div id="infoBanner" class="info-banner option1">
+                    Mode aktif: <strong>Pembenahan BT</strong>. BT akan divalidasi otomatis terhadap rata-rata (BA+BB)/2.
+                </div>
+                <div style="overflow-x: auto;">
+                    <table id="inputTable">
+                        <thead>
+                            <tr>
+                                <th rowspan="2">No</th>
+                                <th rowspan="2">TP</th>
+                                <th colspan="4" class="head-b">Belakang (B)</th>
+                                <th colspan="4" class="head-m">Muka (M)</th>
+                                <th rowspan="2">Aksi</th>
+                            </tr>
+                            <tr>
+                                <th class="bg-b">BA</th>
+                                <th class="bg-b">BT</th>
+                                <th class="bg-b">BB</th>
+                                <th class="bg-b">Jarak</th>
+                                <th class="bg-m">BA</th>
+                                <th class="bg-m">BT</th>
+                                <th class="bg-m">BB</th>
+                                <th class="bg-m">Jarak</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="result-section" id="resultSection">
+                    <h2>Hasil Perhitungan</h2>
+                    <div style="overflow-x: auto;">
+                        <table class="result-table" style="width:100%; border-collapse:collapse;">
+                            <thead id="resultHead"></thead>
+                            <tbody id="resultBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="chart-container">
+                        <h3>Grafik Profil Memanjang</h3>
+                        <canvas id="profilChart"></canvas>
+                    </div>
+                </div>
+                <div class="result-section" id="analisisSection">
+                    <h2>Analisis Perhitungan</h2>
+                    <div id="analisisBody" style="overflow-x:auto;"></div>
+                </div>
+            </div>
         </div>
     </main>
+    <footer id="footer" class="footer">
+        &copy; 2026 Architecture Tools
+    </footer>
     <script>
+        let defaultData = [{
+            TP: 132,
+            b: {
+                ba: 1.378,
+                bt: 1.328,
+                bb: 1.278,
+                jarakAsli: 15
+            },
+            m: {
+                ba: 1.366,
+                bt: 1.307,
+                bb: 1.248,
+                jarakAsli: 15
+            }
+        }, {
+            TP: 133,
+            b: {
+                ba: 1.523,
+                bt: 1.448,
+                bb: 1.374,
+                jarakAsli: 15
+            },
+            m: {
+                ba: 1.345,
+                bt: 1.271,
+                bb: 1.198,
+                jarakAsli: 15
+            }
+        }, {
+            TP: 132,
+            b: {
+                ba: 1.404,
+                bt: 1.328,
+                bb: 1.253,
+                jarakAsli: 15
+            },
+            m: {
+                ba: 1.438,
+                bt: 1.364,
+                bb: 1.29,
+                jarakAsli: 15
+            }
+        }, {
+            TP: 133,
+            b: {
+                ba: 1.335,
+                bt: 1.26,
+                bb: 1.185,
+                jarakAsli: 15
+            },
+            m: {
+                ba: 1.455,
+                bt: 1.38,
+                bb: 1.306,
+                jarakAsli: 15
+            }
+        }, {
+            TP: 133,
+            b: {
+                ba: 1.31,
+                bt: 1.265,
+                bb: 1.221,
+                jarakAsli: 15
+            },
+            m: {
+                ba: 1.477,
+                bt: 1.433,
+                bb: 1.39,
+                jarakAsli: 15
+            }
+        }, {
+            TP: 132,
+            b: {
+                ba: 1.316,
+                bt: 1.262,
+                bb: 1.209,
+                jarakAsli: 15
+            },
+            m: {
+                ba: 1.46,
+                bt: 1.405,
+                bb: 1.35,
+                jarakAsli: 15
+            }
+        }, {
+            TP: 134,
+            b: {
+                ba: 1.242,
+                bt: 1.167,
+                bb: 1.093,
+                jarakAsli: 15
+            },
+            m: {
+                ba: 1.406,
+                bt: 1.331,
+                bb: 1.257,
+                jarakAsli: 15
+            }
+        }, {
+            TP: 133.5,
+            b: {
+                ba: 1.459,
+                bt: 1.384,
+                bb: 1.31,
+                jarakAsli: 15
+            },
+            m: {
+                ba: 1.394,
+                bt: 1.319,
+                bb: 1.245,
+                jarakAsli: 15
+            }
+        }, {
+            TP: 133.5,
+            b: {
+                ba: 1.394,
+                bt: 1.319,
+                bb: 1.245,
+                jarakAsli: 15
+            },
+            m: {
+                ba: 1.462,
+                bt: 1.388,
+                bb: 1.314,
+                jarakAsli: 15
+            }
+        }, {
+            TP: 133.5,
+            b: {
+                ba: 1.405,
+                bt: 1.366,
+                bb: 1.328,
+                jarakAsli: 8.75
+            },
+            m: {
+                ba: 0.98,
+                bt: 0.931,
+                bb: 0.883,
+                jarakAsli: 8.75
+            }
+        }];
+        let profilChart = null;
+
+        function getJenisPengukuran() {
+            return document.getElementById("jenisPengukuran").value;
+        }
+
+        function toggleJenisPengukuran() {
+            const jenis = getJenisPengukuran();
+            const banner = document.getElementById("infoBanner");
+            if (jenis === 'pembenahan') {
+                banner.className = 'info-banner option1 show';
+                banner.innerHTML =
+                    'Mode aktif: <strong>Pembenahan BT</strong>. BT akan divalidasi otomatis terhadap rata-rata (BA+BB)/2.';
+                validasiSemuaBT();
+            } else {
+                banner.className = 'info-banner option2 show';
+                banner.innerHTML =
+                    'Mode aktif: <strong>Koreksi tanpa pembenahan BT</strong>. BT digunakan apa adanya, kemudian dikoreksi dengan rumus K = Σ BT B - Σ BT M.';
+                clearValidasiBT();
+            }
+        }
+
+        function clearValidasiBT() {
+            document.querySelectorAll('#inputTable tbody tr').forEach(tr => {
+                tr.querySelectorAll('input[type="number"]').forEach(inp => {
+                    inp.classList.remove('error-bg');
+                    inp.removeAttribute('title');
+                });
+            });
+        }
+
+        function renderInputTable() {
+            const tbody = document.querySelector("#inputTable tbody");
+            tbody.innerHTML = "";
+            defaultData.forEach((row, index) => {
+                tambahBarisHTML(index + 1, row);
+            });
+            validasiSemuaBT();
+            toggleJenisPengukuran();
+        }
+
+        function tambahBarisHTML(index, row = {
+            TP: '',
+            b: {
+                ba: '',
+                bt: '',
+                bb: '',
+                jarakAsli: ''
+            },
+            m: {
+                ba: '',
+                bt: '',
+                bb: '',
+                jarakAsli: ''
+            }
+        }) {
+            const tbody = document.querySelector("#inputTable tbody");
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td class="row-index">${index}</td>
+                <td><input type="number" step="any" class="in-tp" value="${row.TP}"></td>
+                <td class="bg-b"><input type="number" step="any" class="in-b-ba" value="${row.b.ba}"></td>
+                <td class="bg-b"><input type="number" step="any" class="in-b-bt" value="${row.b.bt}"></td>
+                <td class="bg-b"><input type="number" step="any" class="in-b-bb" value="${row.b.bb}"></td>
+                <td class="bg-b"><input type="number" step="any" class="in-b-jarak" value="${row.b.jarakAsli}"></td>
+                <td class="bg-m"><input type="number" step="any" class="in-m-ba" value="${row.m.ba}"></td>
+                <td class="bg-m"><input type="number" step="any" class="in-m-bt" value="${row.m.bt}"></td>
+                <td class="bg-m"><input type="number" step="any" class="in-m-bb" value="${row.m.bb}"></td>
+                <td class="bg-m"><input type="number" step="any" class="in-m-jarak" value="${row.m.jarakAsli}"></td>
+                <td><button class="btn btn-danger" onclick="hapusBaris(this)">X</button></td>
+            `;
+            tbody.appendChild(tr);
+            if (getJenisPengukuran() === 'pembenahan') {
+                validasiBaris(tr);
+            }
+        }
+
+        function tambahBaris() {
+            const rowCount = document.querySelectorAll("#inputTable tbody tr").length;
+            tambahBarisHTML(rowCount + 1);
+            updateNomorBaris();
+        }
+
+        function hapusBaris(btn) {
+            const row = btn.closest("tr");
+            row.remove();
+            updateNomorBaris();
+        }
+
+        function updateNomorBaris() {
+            const rows = document.querySelectorAll("#inputTable tbody tr");
+            rows.forEach((row, index) => {
+                row.querySelector(".row-index").innerText = index + 1;
+            });
+        }
+
+        function validasiBT(ba, bb, inputBt) {
+            const baDec = new Decimal(ba || 0);
+            const bbDec = new Decimal(bb || 0);
+            const rataRata = baDec.plus(bbDec).div(2).toDecimalPlaces(3, Decimal.ROUND_HALF_UP);
+            const btInput = new Decimal(inputBt || 0);
+            if (!btInput.isNaN() && !btInput.equals(rataRata)) {
+                return {
+                    valid: false,
+                    benar: rataRata.toFixed(3)
+                };
+            }
+            return {
+                valid: true,
+                benar: null
+            };
+        }
+
+        function validasiBaris(tr) {
+            const baB = tr.querySelector('.in-b-ba').value;
+            const bbB = tr.querySelector('.in-b-bb').value;
+            const btB = tr.querySelector('.in-b-bt');
+            const baM = tr.querySelector('.in-m-ba').value;
+            const bbM = tr.querySelector('.in-m-bb').value;
+            const btM = tr.querySelector('.in-m-bt');
+
+            const hasilB = validasiBT(baB, bbB, btB.value);
+            if (!hasilB.valid) {
+                btB.classList.add('error-bg');
+                btB.title = `Nilai benar: ${hasilB.benar}`;
+            } else {
+                btB.classList.remove('error-bg');
+                btB.removeAttribute('title');
+            }
+
+            const hasilM = validasiBT(baM, bbM, btM.value);
+            if (!hasilM.valid) {
+                btM.classList.add('error-bg');
+                btM.title = `Nilai benar: ${hasilM.benar}`;
+            } else {
+                btM.classList.remove('error-bg');
+                btM.removeAttribute('title');
+            }
+        }
+
+        function validasiSemuaBT() {
+            document.querySelectorAll('#inputTable tbody tr').forEach(tr => validasiBaris(tr));
+        }
+
+        function hitungJarakOptis(ba, bb) {
+            const baDec = new Decimal(ba || 0);
+            const bbDec = new Decimal(bb || 0);
+            return baDec.minus(bbDec).times(100);
+        }
+
+        function prosesHitung() {
+            const jenis = getJenisPengukuran();
+            if (jenis === 'pembenahan') {
+                validasiSemuaBT();
+            }
+            const nomorAbsen = document.getElementById("nomorAbsen").value || 0;
+            const rows = document.querySelectorAll("#inputTable tbody tr");
+            let dataInput = [];
+
+            rows.forEach(row => {
+                const baB = row.querySelector('.in-b-ba').value;
+                const bbB = row.querySelector('.in-b-bb').value;
+                const btBInput = row.querySelector('.in-b-bt');
+                let btBValue = btBInput.value;
+
+                const baM = row.querySelector('.in-m-ba').value;
+                const bbM = row.querySelector('.in-m-bb').value;
+                const btMInput = row.querySelector('.in-m-bt');
+                let btMValue = btMInput.value;
+
+                if (jenis === 'pembenahan') {
+                    const checkB = validasiBT(baB, bbB, btBValue);
+                    if (!checkB.valid && checkB.benar !== null) {
+                        btBValue = checkB.benar;
+                    }
+                    const checkM = validasiBT(baM, bbM, btMValue);
+                    if (!checkM.valid && checkM.benar !== null) {
+                        btMValue = checkM.benar;
+                    }
+                }
+
+                dataInput.push({
+                    TP: row.querySelector(".in-tp").value,
+                    b: {
+                        ba: baB,
+                        bt: btBValue,
+                        bb: bbB
+                    },
+                    m: {
+                        ba: baM,
+                        bt: btMValue,
+                        bb: bbM
+                    }
+                });
+            });
+
+            const hasilJarakOptis = dataInput.map((item, index) => {
+                const jarakOptisB = hitungJarakOptis(item.b.ba, item.b.bb);
+                const jarakOptisM = hitungJarakOptis(item.m.ba, item.m.bb);
+                const totalJarakOptis = jarakOptisB.plus(jarakOptisM);
+                const btB = new Decimal(item.b.bt || 0);
+                const btM = new Decimal(item.m.bt || 0);
+                const bedaTinggi = btB.minus(btM);
+                return {
+                    ...item,
+                    index: index + 1,
+                    jarakOptisB: jarakOptisB,
+                    jarakOptisM: jarakOptisM,
+                    totalJarakOptis: totalJarakOptis,
+                    bedaTinggi: bedaTinggi,
+                    jarakOptisBStr: jarakOptisB.toFixed(3),
+                    jarakOptisMStr: jarakOptisM.toFixed(3),
+                    totalJarakOptisStr: totalJarakOptis.toFixed(3),
+                    bedaTinggiStr: bedaTinggi.toFixed(3)
+                };
+            });
+
+            if (jenis === 'koreksi') {
+                let totalJarakDecimal = new Decimal(0);
+                hasilJarakOptis.forEach(item => {
+                    totalJarakDecimal = totalJarakDecimal.plus(item.totalJarakOptis);
+                });
+
+                let sumBtB = new Decimal(0);
+                let sumBtM = new Decimal(0);
+                hasilJarakOptis.forEach(item => {
+                    sumBtB = sumBtB.plus(new Decimal(item.b.bt || 0));
+                    sumBtM = sumBtM.plus(new Decimal(item.m.bt || 0));
+                });
+                const K = sumBtB.minus(sumBtM);
+
+                let tinggiSaatIni = new Decimal(nomorAbsen);
+                const hasilAkhir = hasilJarakOptis.map(item => {
+                    const tinggiSebelumnya = tinggiSaatIni.toFixed(3);
+                    const jarakN = item.totalJarakOptis;
+                    let koreksiN = new Decimal(0);
+                    if (!totalJarakDecimal.isZero()) {
+                        koreksiN = jarakN.div(totalJarakDecimal).times(K);
+                    }
+                    const koreksiTerapan = koreksiN.negated();
+                    const bedaTinggi = item.bedaTinggi;
+                    const tinggiTitik = tinggiSaatIni.plus(bedaTinggi).plus(koreksiTerapan);
+                    const tinggiTitikStr = tinggiTitik.toFixed(3);
+                    const koreksiTerapanStr =
+    `${koreksiTerapan.greaterThanOrEqualTo(0) ? "+" : ""}${koreksiTerapan.toFixed(6)}`;
+                    tinggiSaatIni = tinggiTitik;
+                    return {
+                        ...item,
+                        tinggiSebelumnya: tinggiSebelumnya,
+                        tinggiTitik: tinggiTitikStr,
+                        koreksi: koreksiTerapanStr,
+                        koreksiN: koreksiN.toFixed(3),
+                        K: K.toFixed(3),
+                        totalJarak: totalJarakDecimal.toFixed(3)
+                    };
+                });
+
+                tampilkanHasilKoreksi(hasilAkhir, nomorAbsen, {
+                    K: K.toFixed(3),
+                    totalJarak: totalJarakDecimal.toFixed(3),
+                    sumBtB: sumBtB.toFixed(3),
+                    sumBtM: sumBtM.toFixed(3)
+                });
+            } else {
+                let tinggiSaatIni = new Decimal(nomorAbsen);
+                const hasilAkhir = hasilJarakOptis.map(item => {
+                    const tinggiSebelumnya = tinggiSaatIni.toFixed(3);
+                    const BT = item.bedaTinggi;
+                    tinggiSaatIni = tinggiSaatIni.plus(BT);
+                    return {
+                        ...item,
+                        tinggiSebelumnya: tinggiSebelumnya,
+                        tinggiTitik: tinggiSaatIni.toFixed(3)
+                    };
+                });
+                tampilkanHasilPembenahan(hasilAkhir, nomorAbsen);
+            }
+        }
+
+        function buildResultHead(koreksiMode = false) {
+            const thead = document.getElementById("resultHead");
+            let html = `<tr>
+                <th rowspan="2">Titik Ke-</th>
+                <th rowspan="2">TP</th>
+                <th colspan="3" class="head-b">Belakang (B)</th>
+                <th colspan="3" class="head-m">Muka (M)</th>
+                <th rowspan="2">Jarak Optis<br>Belakang</th>
+                <th rowspan="2">Jarak Optis<br>Muka</th>
+                <th rowspan="2">Total<br>Jarak Optis</th>
+                <th rowspan="2">Beda Tinggi</th>`;
+            if (koreksiMode) {
+                html += `<th rowspan="2" class="head-correction">Koreksi</th>`;
+            }
+            html += `<th rowspan="2">Tinggi Titik</th></tr>`;
+            html += `<tr>
+                <th class="bg-b">BA</th>
+                <th class="bg-b">BT</th>
+                <th class="bg-b">BB</th>
+                <th class="bg-m">BA</th>
+                <th class="bg-m">BT</th>
+                <th class="bg-m">BB</th></tr>`;
+            thead.innerHTML = html;
+        }
+
+        function buildResultRow(item, koreksiMode = false) {
+            let rowHtml = `
+                <td>${item.index}</td>
+                <td>${item.TP}</td>
+                <td class="bg-b">${item.b.ba || 0}</td>
+                <td class="bg-b">${item.b.bt || 0}</td>
+                <td class="bg-b">${item.b.bb || 0}</td>
+                <td class="bg-m">${item.m.ba || 0}</td>
+                <td class="bg-m">${item.m.bt || 0}</td>
+                <td class="bg-m">${item.m.bb || 0}</td>
+                <td>${item.jarakOptisBStr}</td>
+                <td>${item.jarakOptisMStr}</td>
+                <td style="background-color:#e8f4f8; font-weight:bold;">${item.totalJarakOptisStr}</td>
+                <td>${item.bedaTinggiStr}</td>`;
+            if (koreksiMode) {
+                rowHtml += `<td class="bg-correction" style="font-weight:bold; color:#8e44ad;">${item.koreksi}</td>`;
+            }
+            rowHtml += `<td style="background-color:#e8f4f8; font-weight:bold;">${item.tinggiTitik}</td>`;
+            return `<tr>${rowHtml}</tr>`;
+        }
+
+        function tampilkanHasilPembenahan(data, elevasiAwal) {
+            const resultBody = document.getElementById("resultBody");
+            const analisisBody = document.getElementById("analisisBody");
+            buildResultHead(false);
+            resultBody.innerHTML = "";
+            analisisBody.innerHTML = "";
+
+            data.forEach(item => {
+                resultBody.innerHTML += buildResultRow(item, false);
+            });
+
+            let analisisHTML = '';
+            analisisHTML += `<table class="analisis-table">
+                <thead><tr><th colspan="3">Beda Tinggi (Δh) = Benang Tengah Belakang - Benang Tengah Muka</th></tr></thead>
+                <tbody><tr class="sub-header"><td>Titik</td><td>Perhitungan</td><td>Hasil</td></tr>`;
+            data.forEach(item => {
+                analisisHTML += `<tr>
+                    <td><span class="titik-badge">Titik ${item.index}</span></td>
+                    <td><span class="math-text">${item.b.bt || 0} - ${item.m.bt || 0}</span></td>
+                    <td>${item.bedaTinggiStr}</td>
+                </tr>`;
+            });
+            analisisHTML += `</tbody></table>`;
+
+            analisisHTML += `<table class="analisis-table">
+                <thead><tr><th colspan="4">Jarak Optis = (BA - BB) × 100</th></tr></thead>
+                <tbody><tr class="sub-header"><td>Titik</td><td>Belakang (B)</td><td>Muka (M)</td><td>Total</td></tr>`;
+            data.forEach(item => {
+                analisisHTML += `<tr>
+                    <td><span class="titik-badge">Titik ${item.index}</span></td>
+                    <td><span class="math-text">(${item.b.ba || 0} - ${item.b.bb || 0}) × 100 = ${item.jarakOptisBStr}</span></td>
+                    <td><span class="math-text">(${item.m.ba || 0} - ${item.m.bb || 0}) × 100 = ${item.jarakOptisMStr}</span></td>
+                    <td><strong>${item.totalJarakOptisStr}</strong></td>
+                </tr>`;
+            });
+            analisisHTML += `</tbody></table>`;
+
+            analisisHTML += `<table class="analisis-table">
+                <thead><tr><th colspan="4">Tinggi Titik = Tinggi Sebelumnya + Beda Tinggi</th></tr></thead>
+                <tbody><tr class="sub-header"><td>Titik</td><td>Tinggi Sebelumnya</td><td>Beda Tinggi</td><td>Tinggi Titik</td></tr>`;
+            data.forEach(item => {
+                const signBeda = new Decimal(item.bedaTinggi).isNegative() ? '-' : '+';
+                const absBT = new Decimal(item.bedaTinggi).abs().toFixed(3);
+                analisisHTML += `<tr>
+                    <td><span class="titik-badge">Titik ${item.index}</span></td>
+                    <td>${item.tinggiSebelumnya}</td>
+                    <td><span class="math-text">${signBeda} ${absBT}</span></td>
+                    <td><strong>${item.tinggiTitik}</strong></td>
+                </tr>`;
+            });
+            analisisHTML += `</tbody></table>`;
+            analisisBody.innerHTML = analisisHTML;
+
+            renderChart(data, elevasiAwal);
+            document.getElementById("resultSection").style.display = "block";
+            document.getElementById("analisisSection").style.display = "block";
+            document.getElementById("resultSection").scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+
+        function tampilkanHasilKoreksi(data, elevasiAwal, infoKoreksi) {
+            const resultBody = document.getElementById("resultBody");
+            const analisisBody = document.getElementById("analisisBody");
+            buildResultHead(true);
+            resultBody.innerHTML = "";
+            analisisBody.innerHTML = "";
+
+            data.forEach(item => {
+                resultBody.innerHTML += buildResultRow(item, true);
+            });
+
+            let analisisHTML = '';
+
+            analisisHTML += `<table class="analisis-table">
+                <thead><tr><th colspan="3">Rumus Koreksi: K = Σ BT Belakang - Σ BT Muka</th></tr></thead>
+                <tbody>
+                    <tr class="sub-header"><td>Parameter</td><td>Nilai</td><td>Keterangan</td></tr>
+                    <tr><td><strong>Σ BT Belakang</strong></td><td>${infoKoreksi.sumBtB}</td><td>Jumlah semua BT Belakang</td></tr>
+                    <tr><td><strong>Σ BT Muka</strong></td><td>${infoKoreksi.sumBtM}</td><td>Jumlah semua BT Muka</td></tr>
+                    <tr class="correction-highlight"><td><strong>K (Σ BT B - Σ BT M)</strong></td><td><strong>${infoKoreksi.K}</strong></td><td>Koreksi beda tinggi total</td></tr>
+                    <tr><td><strong>Σ Jarak Optis</strong></td><td>${infoKoreksi.totalJarak}</td><td>Jumlah jarak optis seluruh titik</td></tr>
+                </tbody>
+            </table>`;
+
+            analisisHTML += `<table class="analisis-table">
+                <thead><tr><th colspan="6">Koreksi Setiap Titik: K<sub>n</sub> = (Jarak<sub>n</sub> / Σ Jarak) × K, lalu koreksi diterapkan = -K<sub>n</sub></th></tr></thead>
+                <tbody>
+                    <tr class="sub-header">
+                        <td>Titik</td>
+                        <td>Jarak Optis (n)</td>
+                        <td>Σ Jarak</td>
+                        <td>K<sub>n</sub></td>
+                        <td>Koreksi Diterapkan</td>
+                        <td>Keterangan</td>
+                    </tr>`;
+            data.forEach(item => {
+                analisisHTML += `<tr>
+                    <td><span class="titik-badge">Titik ${item.index}</span></td>
+                    <td>${item.totalJarakOptisStr}</td>
+                    <td>${infoKoreksi.totalJarak}</td>
+                    <td><span class="math-text">(${item.totalJarakOptisStr}/${infoKoreksi.totalJarak}) × ${infoKoreksi.K} = ${item.koreksiN}</span></td>
+                    <td class="correction-highlight"><strong>${item.koreksi}</strong></td>
+                    <td>${new Decimal(item.koreksiN).isNegative() ? 'Beda tinggi positif → koreksi negatif' : 'Beda tinggi negatif → koreksi positif'}</td>
+                </tr>`;
+            });
+            analisisHTML += `</tbody></table>`;
+
+            analisisHTML += `<table class="analisis-table">
+                <thead><tr><th colspan="5">Tinggi Titik = Tinggi Sebelumnya + Beda Tinggi + Koreksi</th></tr></thead>
+                <tbody><tr class="sub-header"><td>Titik</td><td>Tinggi Sebelumnya</td><td>Beda Tinggi</td><td>Koreksi</td><td>Tinggi Titik</td></tr>`;
+            data.forEach(item => {
+                analisisHTML += `<tr>
+                    <td><span class="titik-badge">Titik ${item.index}</span></td>
+                    <td>${item.tinggiSebelumnya}</td>
+                    <td><span class="math-text">${item.bedaTinggiStr}</span></td>
+                    <td><span class="math-text">${item.koreksi}</span></td>
+                    <td><strong>${item.tinggiTitik}</strong></td>
+                </tr>`;
+            });
+            analisisHTML += `</tbody></table>`;
+
+            analisisHTML += `<table class="analisis-table">
+                <thead><tr><th colspan="3">Beda Tinggi (Δh) = BT Belakang - BT Muka (tanpa validasi)</th></tr></thead>
+                <tbody><tr class="sub-header"><td>Titik</td><td>Perhitungan</td><td>Hasil</td></tr>`;
+            data.forEach(item => {
+                analisisHTML += `<tr>
+                    <td><span class="titik-badge">Titik ${item.index}</span></td>
+                    <td><span class="math-text">${item.b.bt || 0} - ${item.m.bt || 0}</span></td>
+                    <td>${item.bedaTinggiStr}</td>
+                </tr>`;
+            });
+            analisisHTML += `</tbody></table>`;
+
+            analisisHTML += `<table class="analisis-table">
+                <thead><tr><th colspan="4">Jarak Optis = (BA - BB) × 100</th></tr></thead>
+                <tbody><tr class="sub-header"><td>Titik</td><td>Belakang (B)</td><td>Muka (M)</td><td>Total</td></tr>`;
+            data.forEach(item => {
+                analisisHTML += `<tr>
+                    <td><span class="titik-badge">Titik ${item.index}</span></td>
+                    <td><span class="math-text">(${item.b.ba || 0} - ${item.b.bb || 0}) × 100 = ${item.jarakOptisBStr}</span></td>
+                    <td><span class="math-text">(${item.m.ba || 0} - ${item.m.bb || 0}) × 100 = ${item.jarakOptisMStr}</span></td>
+                    <td><strong>${item.totalJarakOptisStr}</strong></td>
+                </tr>`;
+            });
+            analisisHTML += `</tbody></table>`;
+
+            analisisBody.innerHTML = analisisHTML;
+
+            renderChart(data, elevasiAwal);
+            document.getElementById("resultSection").style.display = "block";
+            document.getElementById("analisisSection").style.display = "block";
+            document.getElementById("resultSection").scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+
+        function renderChart(data, elevasiAwal) {
+            const ctx = document.getElementById("profilChart").getContext("2d");
+            if (profilChart) {
+                profilChart.destroy();
+            }
+
+            const points = [{
+                x: 0,
+                y: parseFloat(elevasiAwal)
+            }];
+            let cumulativeDistance = new Decimal(0);
+            data.forEach(item => {
+                const totalJarak = new Decimal(item.totalJarakOptis || 0);
+                cumulativeDistance = cumulativeDistance.plus(totalJarak);
+                points.push({
+                    x: cumulativeDistance.toNumber(),
+                    y: parseFloat(item.tinggiTitik)
+                });
+            });
+
+            const distanceLabelsPlugin = {
+                id: 'distanceLabels',
+                afterDraw: function(chart) {
+                    const ctx = chart.ctx;
+                    const xAxis = chart.scales.x;
+                    const yAxis = chart.scales.y;
+                    const dataset = chart.data.datasets[0];
+                    const pts = dataset.data;
+
+                    ctx.save();
+                    ctx.font = '10px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'top';
+
+                    pts.forEach(point => {
+                        const x = xAxis.getPixelForValue(point.x);
+                        const y = yAxis.getPixelForValue(point.y);
+
+                        ctx.beginPath();
+                        ctx.moveTo(x, y);
+                        ctx.lineTo(x, yAxis.bottom);
+                        ctx.strokeStyle = '#888';
+                        ctx.lineWidth = 1;
+                        ctx.setLineDash([3, 3]);
+                        ctx.stroke();
+                        ctx.setLineDash([]);
+
+                        ctx.fillStyle = '#333';
+                        ctx.fillText(point.x.toFixed(2) + ' m', x, yAxis.bottom + 4);
+                    });
+                    ctx.restore();
+                }
+            };
+
+            profilChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: 'Tinggi Titik',
+                        data: points,
+                        borderColor: '#1abc9c',
+                        backgroundColor: 'rgba(26, 188, 156, 0.2)',
+                        tension: 0.3,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        fill: true
+                    }]
+                },
+                options: {
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Grafik Profil Memanjang'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Jarak: ${context.parsed.x.toFixed(3)} m, Tinggi: ${context.parsed.y.toFixed(3)} m`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            title: {
+                                display: true,
+                                text: 'Jarak Optis (m)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Tinggi Titik (m)'
+                            }
+                        }
+                    }
+                },
+                plugins: [distanceLabelsPlugin]
+            });
+        }
+
+        document.addEventListener('input', function(e) {
+            if (e.target && e.target.matches('#inputTable input')) {
+                const jenis = getJenisPengukuran();
+                if (jenis === 'pembenahan') {
+                    const tr = e.target.closest('tr');
+                    if (tr) validasiBaris(tr);
+                }
+            }
+        });
+
         const sidebar = document.getElementById("sidebar");
         const main = document.getElementById("main");
         const footer = document.getElementById("footer");
         const menuButton = document.getElementById("menuButton");
-        const content = document.getElementById("content");
         menuButton.addEventListener("click", () => {
             const isClosed = sidebar.classList.toggle("closed");
             main.classList.toggle("sidebar-closed", isClosed);
@@ -1239,6 +1342,10 @@
             menuButton.setAttribute("aria-expanded", String(!isClosed));
             menuButton.setAttribute("aria-label", isClosed ? "Buka sidebar" : "Tutup sidebar");
         });
+
+        window.onload = function() {
+            renderInputTable();
+        };
     </script>
 </body>
 </html>
