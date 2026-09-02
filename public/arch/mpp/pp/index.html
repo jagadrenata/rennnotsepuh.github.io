@@ -479,7 +479,6 @@
                         <thead>
                             <tr>
                                 <th rowspan="3">No</th>
-                                <th rowspan="3">TP</th>
                                 <th colspan="8" class="head-pergi">PERGI</th>
                                 <th colspan="8" class="head-pulang">PULANG</th>
                                 <th rowspan="3">Aksi</th>
@@ -664,12 +663,10 @@
             if (!row) {
                 row = {
                     pergi: {
-                        TP: '',
                         b: { ba: '', bt: '', bb: '', jarakAsli: '' },
                         m: { ba: '', bt: '', bb: '', jarakAsli: '' }
                     },
                     pulang: {
-                        TP: '',
                         b: { ba: '', bt: '', bb: '', jarakAsli: '' },
                         m: { ba: '', bt: '', bb: '', jarakAsli: '' }
                     }
@@ -680,8 +677,6 @@
             const tr = document.createElement("tr");
             tr.innerHTML = `
                 <td class="row-index">${index}</td>
-                <td><input type="number" step="any" class="in-tp" value="${row.pergi.TP}"></td>
-
                 <!-- PERGI Belakang -->
                 <td class="bg-b bg-pergi"><input type="number" step="any" class="in-pergi-b-ba" value="${row.pergi.b.ba}"></td>
                 <td class="bg-b bg-pergi"><input type="number" step="any" class="in-pergi-b-bt" value="${row.pergi.b.bt}"></td>
@@ -738,7 +733,6 @@
             rows.forEach(row => {
                 dataInput.push({
                     pergi: {
-                        TP: row.querySelector(".in-tp").value,
                         b: {
                             ba: row.querySelector(".in-pergi-b-ba").value,
                             bt: row.querySelector(".in-pergi-b-bt").value,
@@ -753,7 +747,6 @@
                         }
                     },
                     pulang: {
-                        TP: row.querySelector(".in-tp").value,
                         b: {
                             ba: row.querySelector(".in-pulang-b-ba").value,
                             bt: row.querySelector(".in-pulang-b-bt").value,
@@ -811,7 +804,6 @@ const totalJarakAsli = new Decimal(item.pergi.m.jarakAsli || 0);
 
                 return {
                     nomor: index + 1,
-                    TP: item.pergi.TP,
 
                     pergi: {
                         BABelakang: item.pergi.b.ba,
@@ -858,7 +850,6 @@ const totalJarakAsli = new Decimal(item.pergi.m.jarakAsli || 0);
             thead.innerHTML = `
                 <tr>
                     <th rowspan="2">Titik Ke-</th>
-                    <th rowspan="2">TP</th>
                     <th colspan="3" class="head-pergi">Pergi</th>
                     <th colspan="3" class="head-pulang">Pulang</th>
                     <th rowspan="2">t<sub>1</sub><br>(Pergi)</th>
@@ -885,7 +876,6 @@ const totalJarakAsli = new Decimal(item.pergi.m.jarakAsli || 0);
                 resultBody.innerHTML += `
                     <tr>
                         <td>${item.nomor}</td>
-                        <td>${item.TP}</td>
                         <td class="bg-b">${formatDecimal(item.pergi.BTBelakang)}</td>
                         <td class="bg-m">${formatDecimal(item.pergi.BTMuka)}</td>
                         <td>${formatDecimal(jarakPergi)}</td>
