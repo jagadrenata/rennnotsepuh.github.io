@@ -640,7 +640,6 @@
     },
 ];
 
-
         let profilChart = null;
 
         function formatDecimal(value, digit = 3) {
@@ -801,11 +800,14 @@
                 tinggiSebelumnya = tinggiTitik;
 
                 // Total jarak optis untuk grafik (gunakan rata-rata pergi-pulang atau jumlah)
-                const totalJarakOptis = jarakOptisPergiBelakang
-                    .plus(jarakOptisPergiMuka)
-                    .plus(jarakOptisPulangBelakang)
-                    .plus(jarakOptisPulangMuka)
-                    .dividedBy(2); // rata-rata jarak pergi & pulang
+                // const totalJarakOptis = jarakOptisPergiBelakang
+                //     .plus(jarakOptisPergiMuka)
+                //     .plus(jarakOptisPulangBelakang)
+                //     .plus(jarakOptisPulangMuka)
+                //     .dividedBy(2); // rata-rata jarak pergi & pulang
+
+                // Jarak asli antar titik
+const totalJarakAsli = new Decimal(item.pergi.m.jarakAsli || 0);
 
                 return {
                     nomor: index + 1,
@@ -842,7 +844,7 @@
                     t: t,
                     tinggiSebelumnya: tinggiSebelumnyaSaatIni,
                     tinggiTitik: tinggiTitik,
-                    totalJarakOptis: totalJarakOptis
+                    totalJarakOptis: totalJarakAsli
                 };
             });
         }
