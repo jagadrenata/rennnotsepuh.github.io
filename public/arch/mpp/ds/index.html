@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARCHITECTURE TOOLS - Pengukuran Double Stand</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/decimal.js/10.4.3/decimal.min.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js">
+    </script>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        html,
+        body {
+            margin: 0;
+            min-height: 100%;
+            background: #f0fdfa;
+            color: #1f2937;
+        }
+        :root {
+            --primary: #14b8a6;
+            --primary-dark: #0f766e;
+            --primary-darker: #115e59;
+            --primary-light: #ccfbf1;
+            --primary-soft: #f0fdfa;
+            --dark: #134e4a;
+            --sidebar: #0f766e;
+            --sidebar-dark: #115e59;
+            --sidebar-hover: #0d9488;
+            --white: #ffffff;
+            --text-muted: #64748b;
+        }
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(15, 118, 110, 0.25);
+        }
+        .menu-button {
+            width: 42px;
+            height: 42px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            line-height: 1;
+            cursor: pointer;
+            margin-right: 12px;
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+        .menu-button:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        .menu-button:active {
+            transform: scale(0.95);
+        }
+        .navbar-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .sidebar {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            bottom: 0;
+            width: 270px;
+            background: var(--sidebar);
+            color: white;
+            overflow-y: auto;
+            transform: translateX(0);
+            transition: transform 0.3s ease;
+            z-index: 900;
+            box-shadow: 2px 0 10px rgba(15, 118, 110, 0.2);
+            padding-bottom: 20px;
+        }
+        .sidebar.closed {
+            transform: translateX(-100%);
+        }
+        .sidebar a {
+            display: block;
+            padding: 14px 20px;
+            color: white;
+            text-decoration: none;
+            border-left: 3px solid transparent;
+            transition: background 0.2s ease, border-color 0.2s ease;
+        }
+        .sidebar a:hover {
+            background: var(--sidebar-hover);
+            border-left-color: white;
+        }
+        .sidebar-header {
+            padding: 22px 20px 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .sidebar-brand {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .sidebar-description {
+            font-size: 12px;
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        .sidebar-section-title {
+            padding: 18px 20px 8px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.65);
+        }
+        .sponsor-card {
+            margin: 10px 14px 18px;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        .sponsor-label {
+            display: inline-block;
+            padding: 4px 8px;
+            margin-bottom: 10px;
+            background: var(--primary-light);
+            color: var(--primary-darker);
+            border-radius: 5px;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .sponsor-title {
+            margin: 0 0 6px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+        }
+        .sponsor-title a {
+            display: inline;
+            padding: 0;
+            color: white;
+            border: none;
+            text-decoration: none;
+        }
+        .sponsor-title a:hover {
+            background: none;
+            border: none;
+            color: var(--primary-light);
+        }
+        .sponsor-text {
+            margin: 0;
+            font-size: 12px;
+            line-height: 1.55;
+            color: rgba(255, 255, 255, 0.82);
+        }
+        .sponsor-text a {
+            display: inline;
+            padding: 0;
+            color: var(--primary-light);
+            border: none;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .sponsor-text a:hover {
+            background: none;
+            border: none;
+            text-decoration: underline;
+        }
+        .sponsor-divider {
+            height: 1px;
+            margin: 12px 0;
+            background: rgba(255, 255, 255, 0.15);
+        }
+        .sponsor-company {
+            font-size: 13px;
+            font-weight: bold;
+            color: white;
+        }
+        .sponsor-company a {
+            display: inline;
+            padding: 0;
+            color: var(--primary-light);
+            border: none;
+            text-decoration: none;
+        }
+        .sponsor-company a:hover {
+            background: none;
+            border: none;
+            text-decoration: underline;
+        }
+        .main {
+            margin-top: 60px;
+            margin-left: 270px;
+            min-height: calc(100vh - 120px);
+            transition: margin-left 0.3s ease;
+            padding: 20px;
+        }
+        .main.sidebar-closed {
+            margin-left: 0;
+        }
+        .footer {
+            margin-left: 270px;
+            min-height: 60px;
+            padding: 15px;
+            background: var(--dark);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: margin-left 0.3s ease;
+        }
+        .footer.sidebar-closed {
+            margin-left: 0;
+        }
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 0 15px;
+            }
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar:not(.closed) {
+                transform: translateX(0);
+            }
+            .main {
+                margin-left: 0;
+                padding: 20px;
+            }
+            .main.sidebar-closed {
+                margin-left: 0;
+            }
+            .footer {
+                margin-left: 0;
+            }
+            .footer.sidebar-closed {
+                margin-left: 0;
+            }
+        }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+        }
+        h1,
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        .control-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #ecf0f1;
+            border-radius: 6px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .control-panel label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .control-panel input {
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            width: 100px;
+        }
+        .control-panel .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
+        th,
+        td {
+            border: 1px solid #dfe6e9;
+            padding: 6px 4px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        th {
+            background-color: #34495e;
+            color: white;
+            font-weight: 600;
+        }
+        .bg-b {
+            background-color: #e3f2fd;
+        }
+        .bg-m {
+            background-color: #fff3e0;
+        }
+        .head-pergi {
+            background-color: #3498db !important;
+            color: white;
+        }
+        .head-pulang {
+            background-color: #9b59b6 !important;
+            color: white;
+        }
+        .bg-pergi {
+            background-color: #ebf5fb;
+        }
+        .bg-pulang {
+            background-color: #f5eef8;
+        }
+        input[type="number"] {
+            width: 80px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            text-align: center;
+            background: #fff;
+            font-size: 12px;
+        }
+        input[type="number"].empty-input {
+            background: #fef9e7;
+            border-color: #f39c12;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        .btn-success {
+            background-color: #2ecc71;
+            color: white;
+            font-size: 16px;
+            padding: 12px 24px;
+        }
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+        .btn-danger {
+            background-color: #e74c3c;
+            color: white;
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        .result-section {
+            display: none;
+            margin-top: 40px;
+            border-top: 2px dashed #bdc3c7;
+            padding-top: 20px;
+        }
+        .result-section h2 {
+            color: #27ae60;
+        }
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+            background: #f9fbfd;
+            font-size: 13px;
+        }
+        .result-table th {
+            background-color: #5d6d7e;
+            color: white;
+            padding: 10px;
+            font-size: 12px;
+        }
+        .result-table td {
+            padding: 8px;
+            border: 1px solid #d0d7de;
+            font-size: 13px;
+        }
+        .result-table .row-label-A {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .result-table .highlight {
+            background-color: #d5f5e3;
+            font-weight: bold;
+        }
+        .result-table .highlight-blue {
+            background-color: #e8f4f8;
+            font-weight: bold;
+        }
+        .math-text {
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 600;
+            color: #c0392b;
+            display: inline-block;
+        }
+        .titik-badge {
+            display: inline-block;
+            background-color: #34495e;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            margin-right: 5px;
+            font-weight: normal;
+        }
+        .chart-container {
+            margin-top: 30px;
+            text-align: center;
+        }
+        .chart-container canvas {
+            max-width: 900px;
+            height: 400px !important;
+            width: 100% !important;
+        }
+        .info-banner {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            font-weight: 500;
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .analisis-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+            background: #f9fbfd;
+            font-size: 13px;
+        }
+        .analisis-table th {
+            background-color: #5d6d7e;
+            color: white;
+            padding: 10px;
+        }
+        .analisis-table td {
+            padding: 8px;
+            border: 1px solid #d0d7de;
+        }
+        .analisis-table .sub-header {
+            background-color: #d5dbdb;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <button id="menuButton" class="menu-button" type="button" aria-label="Buka sidebar" aria-expanded="true" aria-controls="sidebar">
+            ☰
+        </button>
+        <div class="navbar-title">Architecture Tools</div>
+    </nav>
+
+    <aside id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-brand">Architecture Tools</div>
+            <div class="sidebar-description">Selamat datang di website kami.</div>
+        </div>
+        <div class="sidebar-section-title">Navigasi</div>
+        <a href="#">Elevasi SIN COS TAN</a>
+        <a href="#">Luas Segitiga</a>
+        <a href="#">Pemetaan Pancar</a>
+        <a href="#">Polar warerpass</a>
+        <a href="#">Polar warerpass BLK MUKA(single)</a>
+        <a href="#">Polar warerpass terbuka</a>
+        <a href="/arch/mpp">Polar warerpass tertutup</a>
+        <a href="/arch/mpp/pp">Polar warerpass PP</a>
+        <a href="#">Polar warerpass Double Stand</a>
+        <div class="sidebar-section-title">Sponsor</div>
+        <div class="sponsor-card">
+            <div class="sponsor-label">Disponsori oleh</div>
+            <h3 class="sponsor-title">
+                <a href="https://nusantaracad.id" target="_blank" rel="noopener noreferrer">NusantaraCAD</a>
+            </h3>
+            <p class="sponsor-text">
+                AI CAD buatan anak bangsa Indonesia untuk membantu proses desain dan rekayasa secara lebih cerdas.
+            </p>
+            <div class="sponsor-divider"></div>
+            <div class="sponsor-company">
+                Bagian dari
+                <a href="https://digikarta.web.id" target="_blank" rel="noopener noreferrer">DigiKarta</a>
+            </div>
+        </div>
+    </aside>
+
+    <main id="main" class="main">
+        <div id="content">
+            <div class="container">
+                <h1>Pengukuran Menyipat Datar Memanjang<br>
+                    <small style="font-size:16px;color:#64748b;">Metode Double Stand</small>
+                </h1>
+
+                <div class="control-panel">
+                    <div class="control-group">
+                        <label for="tinggiAwal">Tinggi Awal (Elevasi):</label>
+                        <input type="number" id="tinggiAwal" value="140" step="any">
+                    </div>
+                    <div class="control-group">
+                        <button class="btn btn-primary" onclick="tambahBaris()">+ Tambah Titik</button>
+                        <button class="btn btn-success" onclick="prosesHitung()">Hitung Sekarang</button>
+                    </div>
+                </div>
+
+                <div style="overflow-x: auto;">
+                    <table id="inputTable">
+                        <thead>
+                            <tr>
+                                <th rowspan="2" style="min-width:60px;">No.<br>Titik</th>
+                                <th colspan="2" class="head-pergi">Stand 1</th>
+                                <th rowspan="2" style="min-width:70px;">Jarak<br>(m)</th>
+                                <th colspan="2" class="head-pulang">Stand 2</th>
+                                <th rowspan="2" style="min-width:50px;">Aksi</th>
+                            </tr>
+                            <tr>
+                                <th class="bg-b" style="background-color:#e3f2fd;color:#1a5276;">BT Belakang</th>
+                                <th class="bg-m" style="background-color:#fff3e0;color:#935116;">BT Muka</th>
+                                <th class="bg-b" style="background-color:#e3f2fd;color:#1a5276;">BT Belakang</th>
+                                <th class="bg-m" style="background-color:#fff3e0;color:#935116;">BT Muka</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <div class="result-section" id="resultSection">
+                    <h2>Hasil Perhitungan</h2>
+                    <div style="overflow-x: auto;">
+                        <table class="result-table">
+                            <thead id="resultHead"></thead>
+                            <tbody id="resultBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="chart-container">
+                        <h3>Grafik Profil Memanjang</h3>
+                        <canvas id="profilChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="result-section" id="analisisSection">
+                    <h2>Analisis Perhitungan</h2>
+                    <div id="analisisBody" style="overflow-x:auto;"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer id="footer" class="footer">
+        &copy; 2026 Architecture Tools
+    </footer>
+
+    <script>
+        // ===================== DEFAULT DATA =====================
+        let defaultData = [
+    { stand1: { b: "1.501", m: "1.246" }, jarak: "30", stand2: { b: "1.511", m: "1.255" } },
+    { stand1: { b: "1.485", m: "1.397" }, jarak: "30", stand2: { b: "1.485", m: "1.395" } },
+    { stand1: { b: "1.379", m: "1.256" }, jarak: "30", stand2: { b: "1.412", m: "1.290" } },
+    { stand1: { b: "1.501", m: "1.399" }, jarak: "30", stand2: { b: "1.446", m: "1.345" } },
+    { stand1: { b: "1.362", m: "1.409" }, jarak: "30", stand2: { b: "1.326", m: "1.373" } },
+    { stand1: { b: "1.330", m: "1.581" }, jarak: "30", stand2: { b: "1.261", m: "1.510" } },
+    { stand1: { b: "1.172", m: "1.545" }, jarak: "30", stand2: { b: "1.107", m: "1.482" } },
+    { stand1: { b: "1.330", m: "1.451" }, jarak: "30", stand2: { b: "1.261", m: "1.383" } },
+];
+
+        let profilChart = null;
+
+        // ===================== UTILITY =====================
+        function formatDecimal(value, digit = 3) {
+            if (value === null || value === undefined || value === "" || isNaN(Number(value))) {
+                return "—";
+            }
+            return new Decimal(value).toDecimalPlaces(digit).toFixed(digit);
+        }
+
+        function parseNumber(value) {
+            if (value === "" || value === null || value === undefined) return null;
+            const num = Number(value);
+            return isNaN(num) ? null : num;
+        }
+
+        function getRowLabel(index) {
+            if (index === 0) return "A";
+            return String(index);
+        }
+
+        // ===================== RENDER INPUT TABLE =====================
+        function renderInputTable() {
+            const tbody = document.querySelector("#inputTable tbody");
+            tbody.innerHTML = "";
+            defaultData.forEach((row, index) => {
+                tambahBarisHTML(index, row);
+            });
+        }
+
+        function tambahBarisHTML(index, row) {
+            if (!row) {
+                row = {
+                    stand1: { b: "", m: "" },
+                    jarak: "",
+                    stand2: { b: "", m: "" }
+                };
+            }
+            const label = getRowLabel(index);
+            const tbody = document.querySelector("#inputTable tbody");
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td class="row-label" style="font-weight:bold;background:#f8f9fa;">${label}</td>
+                <td class="bg-b bg-pergi"><input type="number" step="any" class="in-s1-b" value="${row.stand1.b}" placeholder="BT B"></td>
+                <td class="bg-m bg-pergi"><input type="number" step="any" class="in-s1-m" value="${row.stand1.m}" placeholder="BT M"></td>
+                <td style="background:#fdfefe;"><input type="number" step="any" class="in-jarak" value="${row.jarak}" placeholder="Jarak" style="width:70px;"></td>
+                <td class="bg-b bg-pulang"><input type="number" step="any" class="in-s2-b" value="${row.stand2.b}" placeholder="BT B"></td>
+                <td class="bg-m bg-pulang"><input type="number" step="any" class="in-s2-m" value="${row.stand2.m}" placeholder="BT M"></td>
+                <td><button class="btn btn-danger" onclick="hapusBaris(this)">✕</button></td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        function tambahBaris() {
+            const rowCount = document.querySelectorAll("#inputTable tbody tr").length;
+            tambahBarisHTML(rowCount, null);
+            updateNomorBaris();
+        }
+
+        function hapusBaris(btn) {
+            const row = btn.closest("tr");
+            if (document.querySelectorAll("#inputTable tbody tr").length <= 2) {
+                alert("Minimal harus ada 2 baris (titik awal dan titik akhir).");
+                return;
+            }
+            row.remove();
+            updateNomorBaris();
+        }
+
+        function updateNomorBaris() {
+            const rows = document.querySelectorAll("#inputTable tbody tr");
+            rows.forEach((row, index) => {
+                row.querySelector(".row-label").innerText = getRowLabel(index);
+            });
+        }
+
+        // ===================== PROSES HITUNG =====================
+        function prosesHitung() {
+            const tinggiAwalRaw = document.getElementById("tinggiAwal").value;
+            const tinggiAwal = parseNumber(tinggiAwalRaw);
+            if (tinggiAwal === null) {
+                alert("Mohon isi Tinggi Awal (Elevasi) yang valid.");
+                return;
+            }
+
+            const rows = document.querySelectorAll("#inputTable tbody tr");
+            let dataInput = [];
+
+            rows.forEach(row => {
+                dataInput.push({
+                    stand1: {
+                        b: row.querySelector(".in-s1-b").value.trim(),
+                        m: row.querySelector(".in-s1-m").value.trim()
+                    },
+                    jarak: row.querySelector(".in-jarak").value.trim(),
+                    stand2: {
+                        b: row.querySelector(".in-s2-b").value.trim(),
+                        m: row.querySelector(".in-s2-m").value.trim()
+                    }
+                });
+            });
+
+            const hasil = hitungAnalisis(dataInput, tinggiAwal);
+            tampilkanHasil(hasil, tinggiAwal);
+        }
+
+        function hitungAnalisis(data, tinggiAwal) {
+            let hasil = [];
+            let tinggiSebelumnya = new Decimal(tinggiAwal);
+
+            data.forEach((item, index) => {
+                const rowLabel = getRowLabel(index);
+                const s1b = parseNumber(item.stand1.b);
+                const s1m = parseNumber(item.stand1.m);
+                const s2b = parseNumber(item.stand2.b);
+                const s2m = parseNumber(item.stand2.m);
+                const jarak = parseNumber(item.jarak);
+
+                let t1 = null,
+                    t2 = null,
+                    tRata = null,
+                    tinggiTitik = null;
+
+                if (index === 0) {
+                    // Titik awal (A) — hanya menyimpan elevasi awal
+                    tinggiTitik = tinggiSebelumnya;
+                } else {
+                    // Ambil data baris sebelumnya untuk Belakang
+                    const prev = hasil[index - 1];
+                    const prevS1b = prev.stand1_b_num;
+                    const prevS2b = prev.stand2_b_num;
+
+                    // t1 = Belakang_pergi(prev) - Muka_pergi(current)
+                    if (prevS1b !== null && s1m !== null) {
+                        t1 = new Decimal(prevS1b).minus(new Decimal(s1m));
+                    }
+                    // t2 = Belakang_pulang(prev) - Muka_pulang(current)
+                    if (prevS2b !== null && s2m !== null) {
+                        t2 = new Decimal(prevS2b).minus(new Decimal(s2m));
+                    }
+
+                    if (t1 !== null && t2 !== null) {
+                        tRata = t1.plus(t2).dividedBy(2);
+                        tRata = tRata.toDecimalPlaces(3);
+                        tinggiTitik = tinggiSebelumnya.plus(tRata);
+                        tinggiSebelumnya = tinggiTitik.toDecimalPlaces(3);
+                    } else if (t1 !== null) {
+                        tRata = t1;
+                        tinggiTitik = tinggiSebelumnya.plus(tRata);
+                        tinggiSebelumnya = tinggiTitik;
+                    } else if (t2 !== null) {
+                        tRata = t2;
+                        tinggiTitik = tinggiSebelumnya.plus(tRata);
+                        tinggiSebelumnya = tinggiTitik;
+                    } else {
+                        tRata = null;
+                        tinggiTitik = tinggiSebelumnya;
+                    }
+                }
+
+                hasil.push({
+                    nomor: index,
+                    label: rowLabel,
+                    stand1_b: item.stand1.b,
+                    stand1_m: item.stand1.m,
+                    jarak: item.jarak,
+                    stand2_b: item.stand2.b,
+                    stand2_m: item.stand2.m,
+                    stand1_b_num: s1b,
+                    stand1_m_num: s1m,
+                    stand2_b_num: s2b,
+                    stand2_m_num: s2m,
+                    jarak_num: jarak,
+                    t1: t1,
+                    t2: t2,
+                    tRata: tRata,
+                    tinggiSebelumnya: index === 0 ? new Decimal(tinggiAwal) : hasil[index - 1]?.tinggiTitik ||
+                        new Decimal(tinggiAwal),
+                    tinggiTitik: tinggiTitik,
+                });
+            });
+
+            return hasil;
+        }
+
+        // ===================== TAMPILKAN HASIL =====================
+        function tampilkanHasil(data, elevasiAwal) {
+            const resultHead = document.getElementById("resultHead");
+            const resultBody = document.getElementById("resultBody");
+
+            // Header tabel hasil
+            resultHead.innerHTML = `
+                <tr>
+                    <th rowspan="2">No. Titik</th>
+                    <th colspan="2" class="head-pergi">Stand 1</th>
+                    <th rowspan="2">Jarak<br>(m)</th>
+                    <th colspan="2" class="head-pulang">Stand 2</th>
+                    <th rowspan="2">Beda Tinggi<br>t<sub>1</sub></th>
+                    <th rowspan="2">Beda Tinggi<br>t<sub>2</sub></th>
+                    <th rowspan="2">Beda Tinggi<br>Rata-rata t</th>
+                    <th rowspan="2">Tinggi<br>Titik</th>
+                </tr>
+                <tr>
+                    <th class="bg-b">BT Belakang</th>
+                    <th class="bg-m">BT Muka</th>
+                    <th class="bg-b">BT Belakang</th>
+                    <th class="bg-m">BT Muka</th>
+                </tr>
+            `;
+
+            resultBody.innerHTML = "";
+            data.forEach((item, index) => {
+                const isFirst = index === 0;
+                const isLast = index === data.length - 1;
+
+                let s1bDisplay = item.stand1_b !== "" && item.stand1_b !== null ? formatDecimal(item.stand1_b) :
+                    "—";
+                let s1mDisplay = item.stand1_m !== "" && item.stand1_m !== null ? formatDecimal(item.stand1_m) :
+                    "—";
+                let jarakDisplay = item.jarak !== "" && item.jarak !== null ? formatDecimal(item.jarak, 1) : "—";
+                let s2bDisplay = item.stand2_b !== "" && item.stand2_b !== null ? formatDecimal(item.stand2_b) :
+                    "—";
+                let s2mDisplay = item.stand2_m !== "" && item.stand2_m !== null ? formatDecimal(item.stand2_m) :
+                    "—";
+
+                let t1Display = item.t1 !== null ? formatDecimal(item.t1) : "—";
+                let t2Display = item.t2 !== null ? formatDecimal(item.t2) : "—";
+                let tRataDisplay = item.tRata !== null ? formatDecimal(item.tRata) : "—";
+                let tinggiDisplay = item.tinggiTitik !== null ? formatDecimal(item.tinggiTitik) : "—";
+
+                const labelCell = isFirst ? 'row-label-A' : '';
+                const rowStyle = isFirst ? 'style="background:#f8f9fa;"' : '';
+
+                resultBody.innerHTML += `
+                    <tr ${rowStyle}>
+                        <td class="${labelCell}" style="font-weight:bold;">${item.label}</td>
+                        <td class="bg-b bg-pergi">${s1bDisplay}</td>
+                        <td class="bg-m bg-pergi">${s1mDisplay}</td>
+                        <td>${jarakDisplay}</td>
+                        <td class="bg-b bg-pulang">${s2bDisplay}</td>
+                        <td class="bg-m bg-pulang">${s2mDisplay}</td>
+                        <td class="${t1Display !== '—' && Math.abs(Number(t1Display)) > 0 ? 'highlight-blue' : ''}">${t1Display}</td>
+                        <td class="${t2Display !== '—' && Math.abs(Number(t2Display)) > 0 ? 'highlight-blue' : ''}">${t2Display}</td>
+                        <td class="highlight">${tRataDisplay}</td>
+                        <td class="highlight">${tinggiDisplay}</td>
+                    </tr>
+                `;
+            });
+
+            renderAnalisis(data, elevasiAwal);
+            renderChart(data, elevasiAwal);
+
+            document.getElementById("resultSection").style.display = "block";
+            document.getElementById("analisisSection").style.display = "block";
+            document.getElementById("resultSection").scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // ===================== RENDER ANALISIS =====================
+        function renderAnalisis(data, elevasiAwal) {
+            const analisisBody = document.getElementById("analisisBody");
+            let html = '';
+
+            // Tabel t1
+            html += `
+                <table class="analisis-table">
+                    <thead>
+                        <tr><th colspan="4">t<sub>1</sub> = BT Belakang<i>(titik sebelumnya)</i> − BT Muka<i>(titik saat ini)</i></th></tr>
+                    </thead>
+                    <tbody>
+                        <tr class="sub-header"><td>Titik</td><td>Belakang Sebelumnya</td><td>Muka Saat Ini</td><td>t<sub>1</sub></td></tr>
+            `;
+            data.forEach((item, index) => {
+                if (index === 0) {
+                    html += `
+                        <tr>
+                            <td><span class="titik-badge">${item.label}</span></td>
+                            <td>${item.stand1_b !== "" ? formatDecimal(item.stand1_b) : "—"}</td>
+                            <td>—</td>
+                            <td>—</td>
+                        </tr>`;
+                } else {
+                    const prev = data[index - 1];
+                    const prevB = prev.stand1_b !== "" ? formatDecimal(prev.stand1_b) : "—";
+                    const curM = item.stand1_m !== "" ? formatDecimal(item.stand1_m) : "—";
+                    const t1Val = item.t1 !== null ? formatDecimal(item.t1) : "—";
+                    if (item.t1 !== null && item.stand1_m !== "" && prev.stand1_b !== "") {
+                        html += `
+                            <tr>
+                                <td><span class="titik-badge">${item.label}</span></td>
+                                <td>${prevB}</td>
+                                <td>${curM}</td>
+                                <td><span class="math-text">${prevB} − ${curM} = <strong>${t1Val}</strong></span></td>
+                            </tr>`;
+                    } else {
+                        html += `
+                            <tr>
+                                <td><span class="titik-badge">${item.label}</span></td>
+                                <td>${prevB}</td>
+                                <td>${curM}</td>
+                                <td>—</td>
+                            </tr>`;
+                    }
+                }
+            });
+            html += `</tbody></table>`;
+
+            // Tabel t2
+            html += `
+                <table class="analisis-table">
+                    <thead>
+                        <tr><th colspan="4">t<sub>2</sub> = BT Belakang<i>(titik sebelumnya)</i> − BT Muka<i>(titik saat ini)</i></th></tr>
+                    </thead>
+                    <tbody>
+                        <tr class="sub-header"><td>Titik</td><td>Belakang Sebelumnya</td><td>Muka Saat Ini</td><td>t<sub>2</sub></td></tr>
+            `;
+            data.forEach((item, index) => {
+                if (index === 0) {
+                    html += `
+                        <tr>
+                            <td><span class="titik-badge">${item.label}</span></td>
+                            <td>${item.stand2_b !== "" ? formatDecimal(item.stand2_b) : "—"}</td>
+                            <td>—</td>
+                            <td>—</td>
+                        </tr>`;
+                } else {
+                    const prev = data[index - 1];
+                    const prevB = prev.stand2_b !== "" ? formatDecimal(prev.stand2_b) : "—";
+                    const curM = item.stand2_m !== "" ? formatDecimal(item.stand2_m) : "—";
+                    const t2Val = item.t2 !== null ? formatDecimal(item.t2) : "—";
+                    if (item.t2 !== null && item.stand2_m !== "" && prev.stand2_b !== "") {
+                        html += `
+                            <tr>
+                                <td><span class="titik-badge">${item.label}</span></td>
+                                <td>${prevB}</td>
+                                <td>${curM}</td>
+                                <td><span class="math-text">${prevB} − ${curM} = <strong>${t2Val}</strong></span></td>
+                            </tr>`;
+                    } else {
+                        html += `
+                            <tr>
+                                <td><span class="titik-badge">${item.label}</span></td>
+                                <td>${prevB}</td>
+                                <td>${curM}</td>
+                                <td>—</td>
+                            </tr>`;
+                    }
+                }
+            });
+            html += `</tbody></table>`;
+
+            // Tabel t rata-rata
+            html += `
+                <table class="analisis-table">
+                    <thead>
+                        <tr><th colspan="4">t (Rata-rata) = (t<sub>1</sub> + t<sub>2</sub>) / 2</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr class="sub-header"><td>Titik</td><td>t<sub>1</sub></td><td>t<sub>2</sub></td><td>t</td></tr>
+            `;
+            data.forEach((item, index) => {
+                const t1Val = item.t1 !== null ? formatDecimal(item.t1) : "—";
+                const t2Val = item.t2 !== null ? formatDecimal(item.t2) : "—";
+                const tRataVal = item.tRata !== null ? formatDecimal(item.tRata) : "—";
+                if (index === 0 || item.tRata === null) {
+                    html += `
+                        <tr>
+                            <td><span class="titik-badge">${item.label}</span></td>
+                            <td>${t1Val}</td>
+                            <td>${t2Val}</td>
+                            <td>—</td>
+                        </tr>`;
+                } else {
+                    html += `
+                        <tr>
+                            <td><span class="titik-badge">${item.label}</span></td>
+                            <td>${t1Val}</td>
+                            <td>${t2Val}</td>
+                            <td><span class="math-text">(${t1Val} + ${t2Val}) / 2 = <strong>${tRataVal}</strong></span></td>
+                        </tr>`;
+                }
+            });
+            html += `</tbody></table>`;
+
+            // Tabel Tinggi Titik
+            html += `
+                <table class="analisis-table">
+                    <thead>
+                        <tr><th colspan="4">Tinggi Titik = Tinggi Sebelumnya + t</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr class="sub-header"><td>Titik</td><td>Tinggi Sebelumnya</td><td>t</td><td>Tinggi Titik</td></tr>
+            `;
+            data.forEach((item, index) => {
+                const tRataVal = item.tRata !== null ? formatDecimal(item.tRata) : "—";
+                const tinggiSebelumnyaVal = item.tinggiSebelumnya !== null ? formatDecimal(item.tinggiSebelumnya) :
+                    "—";
+                const tinggiTitikVal = item.tinggiTitik !== null ? formatDecimal(item.tinggiTitik) : "—";
+                if (index === 0) {
+                    html += `
+                        <tr>
+                            <td><span class="titik-badge">${item.label}</span></td>
+                            <td>—</td>
+                            <td>—</td>
+                            <td><strong>${tinggiTitikVal}</strong></td>
+                        </tr>`;
+                } else {
+                    const sign = item.tRata !== null && item.tRata < 0 ? '−' : '+';
+                    const absT = item.tRata !== null ? Math.abs(item.tRata) : null;
+                    const absTStr = absT !== null ? formatDecimal(absT) : "—";
+                    html += `
+                        <tr>
+                            <td><span class="titik-badge">${item.label}</span></td>
+                            <td>${tinggiSebelumnyaVal}</td>
+                            <td><span class="math-text">${sign} ${absTStr}</span></td>
+                            <td><strong>${tinggiTitikVal}</strong></td>
+                        </tr>`;
+                }
+            });
+            html += `</tbody></table>`;
+
+            analisisBody.innerHTML = html;
+        }
+
+        // ===================== RENDER CHART =====================
+        function renderChart(data, elevasiAwal) {
+            const ctx = document.getElementById("profilChart").getContext("2d");
+            if (profilChart) {
+                profilChart.destroy();
+            }
+
+            const points = [];
+            let cumulativeDistance = new Decimal(0);
+
+            data.forEach((item, index) => {
+                let xPos;
+                if (index === 0) {
+                    xPos = 0;
+                } else {
+                    const jarakNum = item.jarak_num;
+                    if (jarakNum !== null && !isNaN(jarakNum)) {
+                        cumulativeDistance = cumulativeDistance.plus(new Decimal(jarakNum));
+                    }
+                    xPos = cumulativeDistance.toNumber();
+                }
+
+                if (item.tinggiTitik !== null) {
+                    points.push({
+                        x: xPos,
+                        y: parseFloat(formatDecimal(item.tinggiTitik))
+                    });
+                }
+            });
+
+            const distanceLabelsPlugin = {
+                id: 'distanceLabels',
+                afterDraw: function(chart) {
+                    const ctx = chart.ctx;
+                    const xAxis = chart.scales.x;
+                    const yAxis = chart.scales.y;
+                    const dataset = chart.data.datasets[0];
+                    const pts = dataset.data;
+
+                    ctx.save();
+                    ctx.font = '10px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'top';
+
+                    pts.forEach(point => {
+                        const x = xAxis.getPixelForValue(point.x);
+                        const y = yAxis.getPixelForValue(point.y);
+
+                        ctx.beginPath();
+                        ctx.moveTo(x, y);
+                        ctx.lineTo(x, yAxis.bottom);
+                        ctx.strokeStyle = '#aaa';
+                        ctx.lineWidth = 1;
+                        ctx.setLineDash([3, 3]);
+                        ctx.stroke();
+                        ctx.setLineDash([]);
+
+                        ctx.fillStyle = '#333';
+                        ctx.fillText(point.x.toFixed(2) + ' m', x, yAxis.bottom + 4);
+                    });
+                    ctx.restore();
+                }
+            };
+
+            profilChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: 'Tinggi Titik',
+                        data: points,
+                        borderColor: '#1abc9c',
+                        backgroundColor: 'rgba(26, 188, 156, 0.2)',
+                        tension: 0.3,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        fill: true
+                    }]
+                },
+                options: {
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Grafik Profil Memanjang Double Stand',
+                            font: { size: 16 }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Jarak: ${context.parsed.x.toFixed(2)} m, Tinggi: ${context.parsed.y.toFixed(3)} m`;
+                                }
+                            }
+                        },
+                        legend: {
+                            display: true,
+                            position: 'bottom'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            title: {
+                                display: true,
+                                text: 'Jarak Kumulatif (m)',
+                                font: { size: 13, weight: 'bold' }
+                            },
+                            min: 0,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + ' m';
+                                }
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Tinggi Titik (m)',
+                                font: { size: 13, weight: 'bold' }
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toFixed(3);
+                                }
+                            }
+                        }
+                    }
+                },
+                plugins: [distanceLabelsPlugin]
+            });
+        }
+
+        // ===================== SIDEBAR TOGGLE =====================
+        const sidebar = document.getElementById("sidebar");
+        const main = document.getElementById("main");
+        const footer = document.getElementById("footer");
+        const menuButton = document.getElementById("menuButton");
+
+        menuButton.addEventListener("click", () => {
+            const isClosed = sidebar.classList.toggle("closed");
+            main.classList.toggle("sidebar-closed", isClosed);
+            footer.classList.toggle("sidebar-closed", isClosed);
+            menuButton.setAttribute("aria-expanded", String(!isClosed));
+            menuButton.setAttribute("aria-label", isClosed ? "Buka sidebar" : "Tutup sidebar");
+        });
+
+        // ===================== INIT =====================
+        window.onload = function() {
+            renderInputTable();
+        };
+    </script>
+</body>
+</html>
