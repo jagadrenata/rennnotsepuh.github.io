@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARCHITECTURE TOOLS - Pengukuran Double Stand</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/decimal.js/10.4.3/decimal.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        html, body {
+            margin: 0;
+            min-height: 100%;
+            background: #f0fdfa;
+            color: #1f2937;
+        }
+        :root {
+            --primary: #14b8a6;
+            --primary-dark: #0f766e;
+            --primary-darker: #115e59;
+            --primary-light: #ccfbf1;
+            --primary-soft: #f0fdfa;
+            --dark: #134e4a;
+            --sidebar: #0f766e;
+            --sidebar-dark: #115e59;
+            --sidebar-hover: #0d9488;
+            --white: #ffffff;
+            --text-muted: #64748b;
+        }
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(15, 118, 110, 0.25);
+        }
+        .menu-button {
+            width: 42px;
+            height: 42px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            line-height: 1;
+            cursor: pointer;
+            margin-right: 12px;
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+        .menu-button:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        .menu-button:active {
+            transform: scale(0.95);
+        }
+        .navbar-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .sidebar {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            bottom: 0;
+            width: 270px;
+            background: var(--sidebar);
+            color: white;
+            overflow-y: auto;
+            transform: translateX(0);
+            transition: transform 0.3s ease;
+            z-index: 900;
+            box-shadow: 2px 0 10px rgba(15, 118, 110, 0.2);
+            padding-bottom: 20px;
+        }
+        .sidebar.closed {
+            transform: translateX(-100%);
+        }
+        .sidebar a {
+            display: block;
+            padding: 14px 20px;
+            color: white;
+            text-decoration: none;
+            border-left: 3px solid transparent;
+            transition: background 0.2s ease, border-color 0.2s ease;
+        }
+        .sidebar a:hover {
+            background: var(--sidebar-hover);
+            border-left-color: white;
+        }
+        .sidebar-header {
+            padding: 22px 20px 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .sidebar-brand {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .sidebar-description {
+            font-size: 12px;
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        .sidebar-section-title {
+            padding: 18px 20px 8px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.65);
+        }
+        .sponsor-card {
+            margin: 10px 14px 18px;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        .sponsor-label {
+            display: inline-block;
+            padding: 4px 8px;
+            margin-bottom: 10px;
+            background: var(--primary-light);
+            color: var(--primary-darker);
+            border-radius: 5px;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .sponsor-title {
+            margin: 0 0 6px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+        }
+        .sponsor-title a {
+            display: inline;
+            padding: 0;
+            color: white;
+            border: none;
+            text-decoration: none;
+        }
+        .sponsor-title a:hover {
+            background: none;
+            border: none;
+            color: var(--primary-light);
+        }
+        .sponsor-text {
+            margin: 0;
+            font-size: 12px;
+            line-height: 1.55;
+            color: rgba(255, 255, 255, 0.82);
+        }
+        .sponsor-text a {
+            display: inline;
+            padding: 0;
+            color: var(--primary-light);
+            border: none;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .sponsor-text a:hover {
+            background: none;
+            border: none;
+            text-decoration: underline;
+        }
+        .sponsor-divider {
+            height: 1px;
+            margin: 12px 0;
+            background: rgba(255, 255, 255, 0.15);
+        }
+        .sponsor-company {
+            font-size: 13px;
+            font-weight: bold;
+            color: white;
+        }
+        .sponsor-company a {
+            display: inline;
+            padding: 0;
+            color: var(--primary-light);
+            border: none;
+            text-decoration: none;
+        }
+        .sponsor-company a:hover {
+            background: none;
+            border: none;
+            text-decoration: underline;
+        }
+        .main {
+            margin-top: 60px;
+            margin-left: 270px;
+            min-height: calc(100vh - 120px);
+            transition: margin-left 0.3s ease;
+            padding: 20px;
+        }
+        .main.sidebar-closed {
+            margin-left: 0;
+        }
+        .footer {
+            margin-left: 270px;
+            min-height: 60px;
+            padding: 15px;
+            background: var(--dark);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: margin-left 0.3s ease;
+        }
+        .footer.sidebar-closed {
+            margin-left: 0;
+        }
+        @media (max-width: 768px) {
+            .navbar { padding: 0 15px; }
+            .sidebar { transform: translateX(-100%); }
+            .sidebar:not(.closed) { transform: translateX(0); }
+            .main { margin-left: 0; padding: 20px; }
+            .main.sidebar-closed { margin-left: 0; }
+            .footer { margin-left: 0; }
+            .footer.sidebar-closed { margin-left: 0; }
+        }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+        }
+        h1, h2 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        .control-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #ecf0f1;
+            border-radius: 6px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .control-panel label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .control-panel input {
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            width: 100px;
+        }
+        .control-panel .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
+        th, td {
+            border: 1px solid #dfe6e9;
+            padding: 6px 4px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        th {
+            background-color: #34495e;
+            color: white;
+            font-weight: 600;
+        }
+        .bg-b { background-color: #e3f2fd; }
+        .bg-m { background-color: #fff3e0; }
+        .head-b { background-color: #1abc9c !important; color: white; }
+        .head-m { background-color: #e67e22 !important; color: white; }
+        .head-pergi { background-color: #3498db !important; color: white; }
+        .head-pulang { background-color: #9b59b6 !important; color: white; }
+        .bg-pergi { background-color: #ebf5fb; }
+        .bg-pulang { background-color: #f5eef8; }
+        input[type="number"] {
+            width: 70px;
+            padding: 4px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            text-align: center;
+            background: #fff;
+            font-size: 12px;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        .btn-success {
+            background-color: #2ecc71;
+            color: white;
+            font-size: 16px;
+            padding: 12px 24px;
+        }
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+        .btn-danger {
+            background-color: #e74c3c;
+            color: white;
+            padding: 5px 10px;
+        }
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        .result-section {
+            display: none;
+            margin-top: 40px;
+            border-top: 2px dashed #bdc3c7;
+            padding-top: 20px;
+        }
+        .result-section h2 {
+            color: #27ae60;
+        }
+        .analisis-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+            background: #f9fbfd;
+            font-size: 13px;
+        }
+        .analisis-table th {
+            background-color: #5d6d7e;
+            color: white;
+            padding: 10px;
+        }
+        .analisis-table td {
+            padding: 8px;
+            border: 1px solid #d0d7de;
+        }
+        .analisis-table .sub-header {
+            background-color: #d5dbdb;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .math-text {
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 600;
+            color: #c0392b;
+            display: inline-block;
+        }
+        .titik-badge {
+            display: inline-block;
+            background-color: #34495e;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            margin-right: 5px;
+            font-weight: normal;
+        }
+        .chart-container {
+            margin-top: 30px;
+            text-align: center;
+        }
+        .chart-container canvas {
+            max-width: 900px;
+            height: 400px !important;
+            width: 100% !important;
+        }
+        .info-banner {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            font-weight: 500;
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .section-label {
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <button id="menuButton" class="menu-button" type="button" aria-label="Buka sidebar" aria-expanded="true" aria-controls="sidebar">
+            ☰
+        </button>
+        <div class="navbar-title">Architecture Tools</div>
+    </nav>
+
+    <aside id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-brand">Architecture Tools</div>
+            <div class="sidebar-description">Selamat datang di website kami.</div>
+        </div>
+        <div class="sidebar-section-title">Navigasi</div>
+                <a href="#">Elevasi SIN COS TAN</a>
+        <a href="#">Luas Segitiga</a>
+        <a href="#">Pemetaan Pancar</a>
+        <a href="#">Polar warerpass</a>
+        <a href="#">Polar warerpass BLK MUKA(single)</a>
+        <a href="#">Polar warerpass terbuka</a>
+        <a href="/arch/mpp">Polar warerpass tertutup</a>
+        <a href="/arch/mpp/pp">Polar warerpass PP</a>
+        <a href="#">Polar warerpass Double Stand</a>
+        <div class="sidebar-section-title">Sponsor</div>
+        <div class="sponsor-card">
+            <div class="sponsor-label">Disponsori oleh</div>
+            <h3 class="sponsor-title">
+                <a href="https://nusantaracad.id" target="_blank" rel="noopener noreferrer">NusantaraCAD</a>
+            </h3>
+            <p class="sponsor-text">
+                AI CAD buatan anak bangsa Indonesia untuk membantu proses desain dan rekayasa secara lebih cerdas.
+            </p>
+            <div class="sponsor-divider"></div>
+            <div class="sponsor-company">
+                Bagian dari
+                <a href="https://digikarta.web.id" target="_blank" rel="noopener noreferrer">DigiKarta</a>
+            </div>
+        </div>
+    </aside>
+
+    <main id="main" class="main">
+        <div id="content">
+            <div class="container">
+                <h1>Pengukuran Menyipat Datar Memanjang<br><small style="font-size:16px;color:#64748b;">Metode Double Stand</small></h1>
+
+                <div class="control-panel">
+                    <div class="control-group">
+                        <label for="tinggiAwal">Tinggi Awal (Elevasi):</label>
+                        <input type="number" id="tinggiAwal" value="100" step="any">
+                    </div>
+                    <div class="control-group">
+                        <button class="btn btn-primary" onclick="tambahBaris()">+ Tambah Titik</button>
+                        <button class="btn btn-success" onclick="prosesHitung()">Hitung Sekarang</button>
+                    </div>
+                </div>
+
+                <div class="info-banner">
+                    Mode: <strong>Pengukuran Double Stand</strong>.
+                    Beda tinggi tiap titik = rata-rata dari t<sub>1</sub> (Stand 1) dan t<sub>2</sub> (Stand 2).
+                    t<sub>1</sub> = BT Belakang Stand 1 − BT Muka Stand 1 &nbsp;|&nbsp;
+                    t<sub>2</sub> = BT Belakang Stand 2 − BT Muka Stand 2 &nbsp;|&nbsp;
+                    t = (t<sub>1</sub> + t<sub>2</sub>) / 2
+                </div>
+
+                <div style="overflow-x: auto;">
+                    <table id="inputTable">
+                        <thead>
+                            <tr>
+                                <th rowspan="2">No</th>
+                                <th colspan="2" class="head-pergi">Stand 1</th>
+                                <th rowspan="2">Jarak</th>
+                                <th colspan="2" class="head-pulang">Stand 2</th>
+                                <th rowspan="2">Aksi</th>
+                            </tr>
+                            <tr>
+                                <th class="bg-b">BT Belakang</th>
+                                <th class="bg-m">BT Muka</th>
+                                <th class="bg-b">BT Belakang</th>
+                                <th class="bg-m">BT Muka</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <div class="result-section" id="resultSection">
+                    <h2>Hasil Perhitungan</h2>
+                    <div style="overflow-x: auto;">
+                        <table class="result-table" style="width:100%; border-collapse:collapse; font-size:13px;">
+                            <thead id="resultHead"></thead>
+                            <tbody id="resultBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="chart-container">
+                        <h3>Grafik Profil Memanjang</h3>
+                        <canvas id="profilChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="result-section" id="analisisSection">
+                    <h2>Analisis Perhitungan</h2>
+                    <div id="analisisBody" style="overflow-x:auto;"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer id="footer" class="footer">
+        &copy; 2026 Architecture Tools
+    </footer>
+
+    <script>
+        // Data default double stand (8 titik pengukuran)
+        let defaultData = [
+    { stand1: { b: "1.3805", m: "1.1745" }, jarak: "30", stand2: { b: "1.4110", m: "1.2070" } },
+    { stand1: { b: "1.5225", m: "1.1150" }, jarak: "30", stand2: { b: "1.5260", m: "1.1150" } },
+    { stand1: { b: "1.4525", m: "1.3460" }, jarak: "30", stand2: { b: "1.4230", m: "1.3150" } },
+    { stand1: { b: "1.3895", m: "1.3735" }, jarak: "30", stand2: { b: "1.3950", m: "1.3750" } },
+    { stand1: { b: "1.2975", m: "1.5050" }, jarak: "30", stand2: { b: "1.2955", m: "1.5020" } },
+    { stand1: { b: "1.3395", m: "1.3450" }, jarak: "30", stand2: { b: "1.3180", m: "1.3225" } },
+    { stand1: { b: "1.2750", m: "1.4695" }, jarak: "30", stand2: { b: "1.2775", m: "1.4660" } },
+    { stand1: { b: "1.1900", m: "1.3505" }, jarak: "30", stand2: { b: "1.1655", m: "1.3265" } },
+];
+
+        let profilChart = null;
+
+        function formatDecimal(value, digit = 4) {
+            if (value === '' || value === null || value === undefined) return '';
+            return new Decimal(value).toDecimalPlaces(digit).toFixed(digit);
+        }
+
+        // Render tabel input dengan pola pergeseran BT Muka
+        function renderInputTable() {
+            const tbody = document.querySelector("#inputTable tbody");
+            tbody.innerHTML = "";
+            const n = defaultData.length;
+
+            for (let i = 0; i <= n; i++) {
+                const tr = document.createElement("tr");
+                let html = '';
+                // Nomor: baris terakhir (i == n) tidak diberi nomor
+                const nomor = i < n ? i + 1 : '';
+                html += `<td class="row-index">${nomor}</td>`;
+
+                // Nilai default
+                let s1b = '', s1m = '', jarak = '', s2b = '', s2m = '';
+                let sourceIndex = null;
+
+                if (i < n) {
+                    // BT Belakang dari data[i]
+                    s1b = defaultData[i].stand1.b;
+                    s2b = defaultData[i].stand2.b;
+                    sourceIndex = i;
+                }
+                if (i > 0) {
+                    // BT Muka dan jarak dari data[i-1]
+                    s1m = defaultData[i - 1].stand1.m;
+                    s2m = defaultData[i - 1].stand2.m;
+                    jarak = defaultData[i - 1].jarak;
+                }
+                if (i === n) {
+                    // Baris tambahan hanya BT Muka dan jarak terakhir
+                    s1m = defaultData[n - 1].stand1.m;
+                    s2m = defaultData[n - 1].stand2.m;
+                    jarak = defaultData[n - 1].jarak;
+                    sourceIndex = n - 1;
+                }
+
+                // Input dengan atribut data-field dan data-source-index
+                html += `<td class="bg-b"><input type="number" step="any" class="in-s1-b" value="${s1b}" data-field="stand1.b" data-source-index="${i < n ? i : ''}" ${i === n ? 'disabled' : ''}></td>`;
+                html += `<td class="bg-m"><input type="number" step="any" class="in-s1-m" value="${s1m}" data-field="stand1.m" data-source-index="${i > 0 ? i - 1 : ''}" ${i === 0 ? 'disabled' : ''}></td>`;
+                html += `<td><input type="number" step="any" class="in-jarak" value="${jarak}" data-field="jarak" data-source-index="${i > 0 ? i - 1 : ''}" ${i === 0 ? 'disabled' : ''}></td>`;
+                html += `<td class="bg-b"><input type="number" step="any" class="in-s2-b" value="${s2b}" data-field="stand2.b" data-source-index="${i < n ? i : ''}" ${i === n ? 'disabled' : ''}></td>`;
+                html += `<td class="bg-m"><input type="number" step="any" class="in-s2-m" value="${s2m}" data-field="stand2.m" data-source-index="${i > 0 ? i - 1 : ''}" ${i === 0 ? 'disabled' : ''}></td>`;
+
+                // Tombol hapus hanya pada baris data asli (i < n)
+                if (i < n) {
+                    html += `<td><button class="btn btn-danger" onclick="hapusBaris(${i})">X</button></td>`;
+                } else {
+                    html += `<td></td>`;
+                }
+
+                tr.innerHTML = html;
+                tbody.appendChild(tr);
+            }
+
+            attachInputListeners();
+        }
+
+        function attachInputListeners() {
+            document.querySelectorAll('#inputTable tbody input').forEach(input => {
+                input.addEventListener('input', function(e) {
+                    const field = this.dataset.field;
+                    const sourceIndex = this.dataset.sourceIndex;
+                    if (sourceIndex === '' || sourceIndex === undefined) return;
+                    const idx = parseInt(sourceIndex);
+                    const value = this.value;
+                    if (field === 'stand1.b') {
+                        defaultData[idx].stand1.b = value;
+                    } else if (field === 'stand1.m') {
+                        defaultData[idx].stand1.m = value;
+                    } else if (field === 'jarak') {
+                        defaultData[idx].jarak = value;
+                    } else if (field === 'stand2.b') {
+                        defaultData[idx].stand2.b = value;
+                    } else if (field === 'stand2.m') {
+                        defaultData[idx].stand2.m = value;
+                    }
+                });
+            });
+        }
+
+        function tambahBaris() {
+            defaultData.push({
+                stand1: { b: '', m: '' },
+                jarak: '',
+                stand2: { b: '', m: '' }
+            });
+            renderInputTable();
+        }
+
+        function hapusBaris(index) {
+            if (index >= 0 && index < defaultData.length) {
+                defaultData.splice(index, 1);
+                renderInputTable();
+            }
+        }
+
+        function prosesHitung() {
+            const tinggiAwal = document.getElementById("tinggiAwal").value || 0;
+            const hasilAnalisis = hitungAnalisis(defaultData, tinggiAwal);
+            tampilkanHasil(hasilAnalisis, tinggiAwal);
+        }
+
+        // Algoritma hitungAnalisis disesuaikan dengan double stand
+        function hitungAnalisis(data, tinggiAwal = 0) {
+            let tinggiSebelumnya = new Decimal(tinggiAwal);
+
+            return data.map((item, index) => {
+                const t1 = new Decimal(item.stand1.b || 0)
+                    .minus(new Decimal(item.stand1.m || 0));
+
+                const t2 = new Decimal(item.stand2.b || 0)
+                    .minus(new Decimal(item.stand2.m || 0));
+
+                let t = t1.plus(t2).dividedBy(2);
+                t = t.toDecimalPlaces(4)
+                const tinggiSebelumnyaSaatIni = tinggiSebelumnya.toDecimalPlaces(4);
+                const tinggiTitik = tinggiSebelumnyaSaatIni.plus(t);
+                tinggiSebelumnya = tinggiTitik.toDecimalPlaces(4);
+
+                return {
+                    nomor: index + 1,
+                    stand1: {
+                        b: item.stand1.b,
+                        m: item.stand1.m,
+                        t1: t1
+                    },
+                    stand2: {
+                        b: item.stand2.b,
+                        m: item.stand2.m,
+                        t2: t2
+                    },
+                    jarak: new Decimal(item.jarak || 0),
+                    t: t,
+                    tinggiSebelumnya: tinggiSebelumnyaSaatIni,
+                    tinggiTitik: tinggiTitik
+                };
+            });
+        }
+
+        function tampilkanHasil(data, elevasiAwal) {
+            const resultBody = document.getElementById("resultBody");
+            const analisisBody = document.getElementById("analisisBody");
+            const thead = document.getElementById("resultHead");
+
+            // Buat array titik berdasarkan pergeseran
+            const n = data.length;
+            const titik = [];
+            // Titik awal
+            titik.push({
+                nomor: 1,
+                s1b: data[0].stand1.b,
+                s1m: '',
+                jarak: '',
+                s2b: data[0].stand2.b,
+                s2m: '',
+                t1: '',
+                t2: '',
+                t: '',
+                tinggi: data[0].tinggiSebelumnya
+            });
+            // Titik antara
+            for (let i = 1; i < n; i++) {
+                titik.push({
+                    nomor: i + 1,
+                    s1b: data[i].stand1.b,
+                    s1m: data[i - 1].stand1.m,
+                    jarak: data[i - 1].jarak,
+                    s2b: data[i].stand2.b,
+                    s2m: data[i - 1].stand2.m,
+                    t1: data[i - 1].stand1.t1,
+                    t2: data[i - 1].stand2.t2,
+                    t: data[i - 1].t,
+                    tinggi: data[i - 1].tinggiTitik
+                });
+            }
+            // Titik akhir (baris tambahan tanpa nomor)
+            titik.push({
+                nomor: '',
+                s1b: '',
+                s1m: data[n - 1].stand1.m,
+                jarak: data[n - 1].jarak,
+                s2b: '',
+                s2m: data[n - 1].stand2.m,
+                t1: data[n - 1].stand1.t1,
+                t2: data[n - 1].stand2.t2,
+                t: data[n - 1].t,
+                tinggi: data[n - 1].tinggiTitik
+            });
+
+            // Header hasil
+            thead.innerHTML = `
+                <tr>
+                    <th rowspan="2">Titik</th>
+                    <th colspan="2" class="head-pergi">Stand 1</th>
+                    <th rowspan="2">Jarak</th>
+                    <th colspan="2" class="head-pulang">Stand 2</th>
+                    <th rowspan="2">t<sub>1</sub> (Stand 1)</th>
+                    <th rowspan="2">t<sub>2</sub> (Stand 2)</th>
+                    <th rowspan="2">t (Rata-rata)</th>
+                    <th rowspan="2">Tinggi Titik</th>
+                </tr>
+                <tr>
+                    <th class="bg-b">BT B</th>
+                    <th class="bg-m">BT M</th>
+                    <th class="bg-b">BT B</th>
+                    <th class="bg-m">BT M</th>
+                </tr>
+            `;
+
+            // Body hasil
+            resultBody.innerHTML = "";
+            titik.forEach(t => {
+                resultBody.innerHTML += `
+                    <tr>
+                        <td>${t.nomor}</td>
+                        <td class="bg-b">${t.s1b}</td>
+                        <td class="bg-m">${t.s1m}</td>
+                        <td>${t.jarak}</td>
+                        <td class="bg-b">${t.s2b}</td>
+                        <td class="bg-m">${t.s2m}</td>
+                        <td>${t.t1 !== '' ? formatDecimal(t.t1) : ''}</td>
+                        <td>${t.t2 !== '' ? formatDecimal(t.t2) : ''}</td>
+                        <td style="background-color:#e8f4f8; font-weight:bold;">${t.t !== '' ? formatDecimal(t.t) : ''}</td>
+                        <td style="background-color:#d5f5e3; font-weight:bold;">${formatDecimal(t.tinggi)}</td>
+                    </tr>
+                `;
+            });
+
+            // Analisis perhitungan (per slag)
+            let analisisHTML = '';
+
+            // Tabel t1 (Stand 1)
+            analisisHTML += `
+                <table class="analisis-table">
+                    <thead>
+                        <tr><th colspan="4">t<sub>1</sub> (Stand 1) = BT Belakang − BT Muka</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr class="sub-header"><td>Slag</td><td>BT Belakang</td><td>BT Muka</td><td>t<sub>1</sub></td></tr>
+            `;
+            data.forEach(item => {
+                analisisHTML += `
+                    <tr>
+                        <td><span class="titik-badge">Slag ${item.nomor}</span></td>
+                        <td>${formatDecimal(item.stand1.b)}</td>
+                        <td>${formatDecimal(item.stand1.m)}</td>
+                        <td><span class="math-text">${formatDecimal(item.stand1.b)} − ${formatDecimal(item.stand1.m)} = ${formatDecimal(item.stand1.t1)}</span></td>
+                    </tr>
+                `;
+            });
+            analisisHTML += `</tbody></table>`;
+
+            // Tabel t2 (Stand 2)
+            analisisHTML += `
+                <table class="analisis-table">
+                    <thead>
+                        <tr><th colspan="4">t<sub>2</sub> (Stand 2) = BT Belakang − BT Muka</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr class="sub-header"><td>Slag</td><td>BT Belakang</td><td>BT Muka</td><td>t<sub>2</sub></td></tr>
+            `;
+            data.forEach(item => {
+                analisisHTML += `
+                    <tr>
+                        <td><span class="titik-badge">Slag ${item.nomor}</span></td>
+                        <td>${formatDecimal(item.stand2.b)}</td>
+                        <td>${formatDecimal(item.stand2.m)}</td>
+                        <td><span class="math-text">${formatDecimal(item.stand2.b)} − ${formatDecimal(item.stand2.m)} = ${formatDecimal(item.stand2.t2)}</span></td>
+                    </tr>
+                `;
+            });
+            analisisHTML += `</tbody></table>`;
+
+            // Tabel t rata-rata
+            analisisHTML += `
+                <table class="analisis-table">
+                    <thead>
+                        <tr><th colspan="4">t (Rata-rata) = (t<sub>1</sub> + t<sub>2</sub>) / 2</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr class="sub-header"><td>Slag</td><td>t<sub>1</sub></td><td>t<sub>2</sub></td><td>t</td></tr>
+            `;
+            data.forEach(item => {
+                analisisHTML += `
+                    <tr>
+                        <td><span class="titik-badge">Slag ${item.nomor}</span></td>
+                        <td>${formatDecimal(item.stand1.t1)}</td>
+                        <td>${formatDecimal(item.stand2.t2)}</td>
+                        <td><span class="math-text">(${formatDecimal(item.stand1.t1)} + ${formatDecimal(item.stand2.t2)}) / 2 = <strong>${formatDecimal(item.t)}</strong></span></td>
+                    </tr>
+                `;
+            });
+            analisisHTML += `</tbody></table>`;
+
+            // Tabel Jarak
+            analisisHTML += `
+                <table class="analisis-table">
+                    <thead>
+                        <tr><th colspan="3">Jarak Antar Titik (dari data)</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr class="sub-header"><td>Slag</td><td>Jarak</td><td>Keterangan</td></tr>
+            `;
+            data.forEach(item => {
+                analisisHTML += `
+                    <tr>
+                        <td><span class="titik-badge">Slag ${item.nomor}</span></td>
+                        <td>${formatDecimal(item.jarak)}</td>
+                        <td>meter</td>
+                    </tr>
+                `;
+            });
+            analisisHTML += `</tbody></table>`;
+
+            // Tabel Tinggi Titik
+            analisisHTML += `
+                <table class="analisis-table">
+                    <thead>
+                        <tr><th colspan="4">Tinggi Titik = Tinggi Sebelumnya + t</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr class="sub-header"><td>Slag</td><td>Tinggi Sebelumnya</td><td>t</td><td>Tinggi Titik</td></tr>
+            `;
+            data.forEach(item => {
+                const sign = item.t.isNegative() ? '−' : '+';
+                const absT = item.t.abs();
+                analisisHTML += `
+                    <tr>
+                        <td><span class="titik-badge">Slag ${item.nomor}</span></td>
+                        <td>${formatDecimal(item.tinggiSebelumnya)}</td>
+                        <td><span class="math-text">${sign} ${formatDecimal(absT)}</span></td>
+                        <td><strong>${formatDecimal(item.tinggiTitik)}</strong></td>
+                    </tr>
+                `;
+            });
+            analisisHTML += `</tbody></table>`;
+
+            analisisBody.innerHTML = analisisHTML;
+
+            renderChart(data, elevasiAwal);
+
+            document.getElementById("resultSection").style.display = "block";
+            document.getElementById("analisisSection").style.display = "block";
+            document.getElementById("resultSection").scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function renderChart(data, elevasiAwal) {
+            const ctx = document.getElementById("profilChart").getContext("2d");
+            if (profilChart) {
+                profilChart.destroy();
+            }
+
+            const points = [{ x: 0, y: parseFloat(elevasiAwal) }];
+            let cumulativeDistance = new Decimal(0);
+
+            data.forEach(item => {
+                cumulativeDistance = cumulativeDistance.plus(item.jarak);
+                points.push({
+                    x: cumulativeDistance.toNumber(),
+                    y: parseFloat(formatDecimal(item.tinggiTitik))
+                });
+            });
+
+            const distanceLabelsPlugin = {
+                id: 'distanceLabels',
+                afterDraw: function(chart) {
+                    const ctx = chart.ctx;
+                    const xAxis = chart.scales.x;
+                    const yAxis = chart.scales.y;
+                    const dataset = chart.data.datasets[0];
+                    const pts = dataset.data;
+
+                    ctx.save();
+                    ctx.font = '10px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'top';
+
+                    pts.forEach(point => {
+                        const x = xAxis.getPixelForValue(point.x);
+                        const y = yAxis.getPixelForValue(point.y);
+
+                        ctx.beginPath();
+                        ctx.moveTo(x, y);
+                        ctx.lineTo(x, yAxis.bottom);
+                        ctx.strokeStyle = '#888';
+                        ctx.lineWidth = 1;
+                        ctx.setLineDash([3, 3]);
+                        ctx.stroke();
+                        ctx.setLineDash([]);
+
+                        ctx.fillStyle = '#333';
+                        ctx.fillText(point.x.toFixed(2) + ' m', x, yAxis.bottom + 4);
+                    });
+                    ctx.restore();
+                }
+            };
+
+            profilChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: 'Tinggi Titik',
+                        data: points,
+                        borderColor: '#1abc9c',
+                        backgroundColor: 'rgba(26, 188, 156, 0.2)',
+                        tension: 0.3,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        fill: true
+                    }]
+                },
+                options: {
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Grafik Profil Memanjang (Double Stand)'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Jarak: ${context.parsed.x.toFixed(4)} m, Tinggi: ${context.parsed.y.toFixed(4)} m`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            title: {
+                                display: true,
+                                text: 'Jarak Kumulatif (m)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Tinggi Titik (m)'
+                            }
+                        }
+                    }
+                },
+                plugins: [distanceLabelsPlugin]
+            });
+        }
+
+        // Sidebar toggle
+        const sidebar = document.getElementById("sidebar");
+        const main = document.getElementById("main");
+        const footer = document.getElementById("footer");
+        const menuButton = document.getElementById("menuButton");
+
+        menuButton.addEventListener("click", () => {
+            const isClosed = sidebar.classList.toggle("closed");
+            main.classList.toggle("sidebar-closed", isClosed);
+            footer.classList.toggle("sidebar-closed", isClosed);
+            menuButton.setAttribute("aria-expanded", String(!isClosed));
+            menuButton.setAttribute("aria-label", isClosed ? "Buka sidebar" : "Tutup sidebar");
+        });
+
+        window.onload = function() {
+            renderInputTable();
+        };
+    </script>
+</body>
+</html>
