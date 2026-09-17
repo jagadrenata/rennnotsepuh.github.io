@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Jawaban Kuesioner NusantaraCAD</title>
+<style>
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    html, body { margin: 0; min-height: 100%; background: #f0fdfa; color: #1f2937; }
+    :root {
+        --primary: #14b8a6;
+        --primary-dark: #0f766e;
+        --primary-darker: #115e59;
+        --primary-light: #ccfbf1;
+        --primary-soft: #f0fdfa;
+        --dark: #134e4a;
+        --text-muted: #64748b;
+        --border: #dbe4e8;
+    }
+
+    /* ============ LOGIN SCREEN ============ */
+    .login-wrap {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: linear-gradient(135deg, #0f766e 0%, #134e4a 100%);
+    }
+    .login-card {
+        width: 100%;
+        max-width: 380px;
+        background: #fff;
+        border-radius: 18px;
+        padding: 38px 32px 32px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    .login-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 6px;
+        background: linear-gradient(90deg, #2dd4bf, #0f766e, #115e59);
+    }
+    .login-icon {
+        width: 68px; height: 68px;
+        margin: 0 auto 18px;
+        border-radius: 18px;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        display: flex; align-items: center; justify-content: center;
+        color: #fff;
+        box-shadow: 0 10px 26px rgba(20, 184, 166, 0.35);
+    }
+    .login-icon svg { width: 34px; height: 34px; }
+    .login-card h1 {
+        font-size: 22px;
+        color: var(--primary-darker);
+        margin: 0 0 8px;
+        letter-spacing: -0.3px;
+    }
+    .login-card p {
+        font-size: 13.5px;
+        color: var(--text-muted);
+        margin: 0 0 24px;
+        line-height: 1.6;
+    }
+    .login-input {
+        width: 100%;
+        padding: 14px 16px;
+        border: 1.5px solid #cbd5e1;
+        border-radius: 11px;
+        font-size: 15px;
+        font-family: inherit;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        background: #fbfdfe;
+        text-align: center;
+        letter-spacing: 3px;
+        font-weight: 600;
+    }
+    .login-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.18);
+        background: #fff;
+    }
+    .login-btn {
+        width: 100%;
+        margin-top: 14px;
+        padding: 14px;
+        background: var(--primary);
+        color: #fff;
+        border: none;
+        border-radius: 11px;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        font-family: inherit;
+        transition: background 0.2s, transform 0.15s;
+        box-shadow: 0 4px 14px rgba(20, 184, 166, 0.3);
+    }
+    .login-btn:hover { background: var(--primary-dark); transform: translateY(-1px); }
+    .login-btn:active { transform: translateY(0); }
+    .login-error {
+        display: none;
+        margin-top: 12px;
+        padding: 10px 14px;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #dc2626;
+        border-radius: 9px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+    .login-error.show { display: block; animation: shake 0.4s; }
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-6px); }
+        75% { transform: translateX(6px); }
+    }
+
+    /* ============ DASHBOARD ============ */
+    .admin { display: none; }
+    .admin.show { display: block; }
+
+    .topbar {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: #fff;
+        padding: 18px 26px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        box-shadow: 0 4px 16px rgba(15, 118, 110, 0.25);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 14px; }
+    .topbar-logo {
+        width: 42px; height: 42px;
+        border-radius: 11px;
+        background: rgba(255, 255, 255, 0.2);
+        display: flex; align-items: center; justify-content: center;
+        backdrop-filter: blur(4px);
+    }
+    .topbar-logo svg { width: 22px; height: 22px; }
+    .topbar h1 {
+        font-size: 17px;
+        margin: 0;
+        font-weight: 700;
+        letter-spacing: -0.2px;
+    }
+    .topbar-sub {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.8);
+        margin-top: 2px;
+    }
+    .topbar-actions { display: flex; gap: 9px; flex-wrap: wrap; }
+    .tb-btn {
+        display: inline-flex; align-items: center; gap: 7px;
+        padding: 9px 15px;
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        color: #fff;
+        border-radius: 9px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: inherit;
+        transition: background 0.2s, transform 0.15s;
+    }
+    .tb-btn:hover { background: rgba(255, 255, 255, 0.28); transform: translateY(-1px); }
+    .tb-btn svg { width: 14px; height: 14px; }
+    .tb-btn.danger { background: rgba(220, 38, 38, 0.85); border-color: rgba(220, 38, 38, 0.9); }
+    .tb-btn.danger:hover { background: rgba(185, 28, 28, 1); }
+
+    .container {
+        max-width: 1240px;
+        margin: 0 auto;
+        padding: 26px 22px 60px;
+    }
+
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 14px;
+        margin-bottom: 22px;
+    }
+    .stat-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 18px 20px;
+        box-shadow: 0 2px 10px rgba(15, 118, 110, 0.05);
+    }
+    .stat-card .n {
+        font-size: 26px;
+        font-weight: 800;
+        color: var(--primary-dark);
+        display: block;
+        line-height: 1.1;
+    }
+    .stat-card .l {
+        font-size: 11px;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        font-weight: 700;
+        margin-top: 6px;
+    }
+
+    .toolbar {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 14px 18px;
+        margin-bottom: 18px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        box-shadow: 0 2px 10px rgba(15, 118, 110, 0.04);
+    }
+    .search-input {
+        flex: 1 1 260px;
+        min-width: 200px;
+        padding: 11px 14px;
+        border: 1.5px solid #cbd5e1;
+        border-radius: 10px;
+        font-size: 14px;
+        font-family: inherit;
+        background: #fbfdfe;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .search-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.18);
+        background: #fff;
+    }
+    .toolbar .info {
+        font-size: 13px;
+        color: var(--text-muted);
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .table-wrap {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 4px 18px rgba(15, 118, 110, 0.06);
+    }
+    .table-scroll { overflow-x: auto; }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13.5px;
+    }
+    thead {
+        background: linear-gradient(135deg, #f0fdfa, #ccfbf1);
+    }
+    th {
+        text-align: left;
+        padding: 13px 16px;
+        font-size: 11.5px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        color: var(--primary-darker);
+        white-space: nowrap;
+        border-bottom: 2px solid #99f6e4;
+    }
+    td {
+        padding: 13px 16px;
+        border-bottom: 1px solid #f1f5f9;
+        color: #334155;
+        vertical-align: top;
+        line-height: 1.5;
+    }
+    tr.row { cursor: pointer; transition: background 0.15s; }
+    tr.row:hover { background: var(--primary-soft); }
+    tr.row:last-child td { border-bottom: none; }
+    td.name { font-weight: 700; color: var(--primary-darker); white-space: nowrap; }
+    td.date { font-size: 12.5px; color: var(--text-muted); white-space: nowrap; }
+    td.preview { max-width: 340px; }
+    .chip {
+        display: inline-block;
+        padding: 3px 9px;
+        background: var(--primary-light);
+        color: var(--primary-darker);
+        border-radius: 6px;
+        font-size: 11.5px;
+        font-weight: 700;
+        margin: 2px 3px 2px 0;
+        white-space: nowrap;
+    }
+    .muted-dash { color: #94a3b8; }
+
+    .empty {
+        text-align: center;
+        padding: 60px 24px;
+        color: var(--text-muted);
+    }
+    .empty-icon {
+        width: 64px; height: 64px;
+        margin: 0 auto 16px;
+        border-radius: 16px;
+        background: var(--primary-soft);
+        display: flex; align-items: center; justify-content: center;
+        color: var(--primary);
+    }
+    .empty-icon svg { width: 32px; height: 32px; }
+    .empty h3 { margin: 0 0 8px; color: var(--primary-darker); font-size: 17px; }
+    .empty p { margin: 0; font-size: 13.5px; line-height: 1.6; }
+
+    /* Detail modal */
+    .modal-bg {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.55);
+        backdrop-filter: blur(3px);
+        z-index: 500;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 24px 16px;
+        overflow-y: auto;
+    }
+    .modal-bg.show { display: flex; }
+    .modal {
+        background: #fff;
+        border-radius: 18px;
+        width: 100%;
+        max-width: 760px;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        margin: auto 0;
+        animation: modalIn 0.28s cubic-bezier(.4, 0, .2, 1);
+    }
+    @keyframes modalIn {
+        from { opacity: 0; transform: translateY(14px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .modal-head {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: #fff;
+        padding: 20px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+    }
+    .modal-head h2 {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 700;
+        letter-spacing: -0.2px;
+    }
+    .modal-head .sub {
+        font-size: 12.5px;
+        color: rgba(255, 255, 255, 0.85);
+        margin-top: 3px;
+    }
+    .modal-close {
+        width: 34px; height: 34px;
+        border: none; border-radius: 9px;
+        background: rgba(255, 255, 255, 0.2);
+        color: #fff;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; font-size: 20px; line-height: 1;
+        transition: background 0.2s;
+    }
+    .modal-close:hover { background: rgba(255, 255, 255, 0.35); }
+    .modal-body {
+        padding: 22px 24px 26px;
+        max-height: 72vh;
+        overflow-y: auto;
+    }
+    .answer-item {
+        padding: 12px 0;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .answer-item:last-child { border-bottom: none; }
+    .a-q {
+        font-size: 12.5px;
+        font-weight: 700;
+        color: #475569;
+        margin-bottom: 6px;
+        line-height: 1.5;
+    }
+    .a-a {
+        font-size: 14px;
+        color: var(--primary-darker);
+        font-weight: 600;
+        line-height: 1.6;
+        word-break: break-word;
+    }
+    .a-a .chip { margin-bottom: 3px; }
+
+    .toast {
+        position: fixed;
+        left: 50%;
+        bottom: 30px;
+        transform: translate(-50%, 24px);
+        background: #134e4a;
+        color: #fff;
+        padding: 13px 22px;
+        border-radius: 10px;
+        font-size: 13.5px;
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.3s ease;
+        z-index: 900;
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
+        max-width: 90vw;
+        text-align: center;
+        font-weight: 500;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    .loader {
+        display: inline-block;
+        width: 16px; height: 16px;
+        border: 2.5px solid rgba(255, 255, 255, 0.4);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+        vertical-align: middle;
+        margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<div class="login-wrap" id="loginWrap">
+    <div class="login-card">
+        <div class="login-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+        </div>
+        <h1>Halaman Admin</h1>
+        <p>Masukkan password untuk melihat jawaban kuesioner.</p>
+        <input type="password" id="pwInput" class="login-input" placeholder="••••••••" autocomplete="off">
+        <button class="login-btn" id="loginBtn" type="button">Masuk</button>
+        <div class="login-error" id="loginError">Password salah. Coba lagi.</div>
+    </div>
+</div>
+
+<!-- ============ DASHBOARD ============ -->
+<div class="admin" id="adminPanel">
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="topbar-logo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 21h18"></path><path d="M5 21V7l8-4v18"></path>
+                    <path d="M19 21V11l-6-4"></path>
+                    <path d="M9 9v.01"></path><path d="M9 12v.01"></path>
+                    <path d="M9 15v.01"></path><path d="M9 18v.01"></path>
+                </svg>
+            </div>
+            <div>
+                <h1>Admin — Jawaban Kuesioner</h1>
+                <div class="topbar-sub">NusantaraCAD · Architecture Tools</div>
+            </div>
+        </div>
+        <div class="topbar-actions">
+            <button class="tb-btn" id="refreshBtn" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="23 4 23 10 17 10"></polyline>
+                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                </svg>
+                Refresh
+            </button>
+            <button class="tb-btn" id="exportJsonBtn" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                JSON
+            </button>
+            <button class="tb-btn" id="exportCsvBtn" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+                CSV
+            </button>
+            <button class="tb-btn danger" id="logoutBtn" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                    <polyline points="16 17 21 12 16 7"></polyline>
+                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+                Logout
+            </button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="stats-row">
+            <div class="stat-card">
+                <span class="n" id="statTotal">0</span>
+                <div class="l">Total Responden</div>
+            </div>
+            <div class="stat-card">
+                <span class="n" id="statToday">0</span>
+                <div class="l">Hari Ini</div>
+            </div>
+            <div class="stat-card">
+                <span class="n" id="statWeek">0</span>
+                <div class="l">7 Hari Terakhir</div>
+            </div>
+            <div class="stat-card">
+                <span class="n" id="statWithEmail">0</span>
+                <div class="l">Dengan Email</div>
+            </div>
+        </div>
+
+        <div class="toolbar">
+            <input type="text" id="searchInput" class="search-input" placeholder="Cari nama, email, atau nomor HP...">
+            <div class="info" id="filterInfo">0 hasil</div>
+        </div>
+
+        <div class="table-wrap">
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width:50px;">#</th>
+                            <th>Nama</th>
+                            <th>Kontak</th>
+                            <th>Tanggal</th>
+                            <th>Jawaban Singkat</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+            <div id="emptyState" class="empty" style="display:none;">
+                <div class="empty-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="9" y1="15" x2="15" y2="15"></line>
+                    </svg>
+                </div>
+                <h3>Belum ada jawaban</h3>
+                <p>Data akan muncul di sini setelah responden mengisi kuesioner.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detail modal -->
+<div class="modal-bg" id="modalBg">
+    <div class="modal">
+        <div class="modal-head">
+            <div>
+                <h2 id="modalName">Detail Responden</h2>
+                <div class="sub" id="modalSub"></div>
+            </div>
+            <button class="modal-close" id="modalClose" type="button" aria-label="Tutup">&#215;</button>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+    </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+/* ============================================================
+   KONFIGURASI
+   ============================================================ */
+const SUPABASE_URL      = 'https://qhvckorlmdgswgleugyu.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFodmNrb3JsbWRnc3dnbGV1Z3l1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk2NTc0MjYsImV4cCI6MjEwNTIzMzQyNn0.P0L59nbWveuSpzt6Ei73FjloZjmV9E9TbbWdKbQrxKA';
+
+const ADMIN_PASSWORD = 'admin00';
+const SESSION_KEY    = 'nusantaracad_admin_ok';
+
+let supabaseClient = null;
+const SUPABASE_CONFIGURED = !SUPABASE_URL.includes('YOUR-PROJECT') && !SUPABASE_ANON_KEY.includes('YOUR-ANON');
+if (SUPABASE_CONFIGURED && window.supabase) {
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}
+
+let allData = [];
+let filteredData = [];
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+function escapeHtml(s) {
+    return String(s === undefined || s === null ? '' : s).replace(/[&<>"']/g, c => (
+        { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+    ));
+}
+
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+function formatDate(iso) {
+    if (!iso) return '—';
+    try {
+        const d = new Date(iso);
+        const opts = { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' };
+        return d.toLocaleString('id-ID', opts).replace(/\./g, ':');
+    } catch { return iso; }
+}
+
+/* ============================================================
+   AUTH
+   ============================================================ */
+const loginWrap  = document.getElementById('loginWrap');
+const adminPanel = document.getElementById('adminPanel');
+const pwInput    = document.getElementById('pwInput');
+const loginError = document.getElementById('loginError');
+
+function showLogin() {
+    loginWrap.style.display = 'flex';
+    adminPanel.classList.remove('show');
+    pwInput.value = '';
+    setTimeout(() => pwInput.focus(), 100);
+}
+function showAdmin() {
+    loginWrap.style.display = 'none';
+    adminPanel.classList.add('show');
+    loadData();
+}
+function tryLogin() {
+    const val = pwInput.value;
+    if (val === ADMIN_PASSWORD) {
+        try { sessionStorage.setItem(SESSION_KEY, '1'); } catch (e) {}
+        loginError.classList.remove('show');
+        showAdmin();
+    } else {
+        loginError.classList.add('show');
+        pwInput.value = '';
+        pwInput.focus();
+        setTimeout(() => loginError.classList.remove('show'), 2400);
+    }
+}
+document.getElementById('loginBtn').addEventListener('click', tryLogin);
+pwInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); tryLogin(); } });
+
+document.getElementById('logoutBtn').addEventListener('click', () => {
+    try { sessionStorage.removeItem(SESSION_KEY); } catch (e) {}
+    allData = []; filteredData = [];
+    showLogin();
+    showToast('Berhasil logout.');
+});
+
+/* ============================================================
+   LOAD DATA
+   ============================================================ */
+async function loadData() {
+    const tbody = document.getElementById('tableBody');
+    const emptyState = document.getElementById('emptyState');
+
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:36px;">
+        <span style="display:inline-block; width:18px; height:18px; border:2.5px solid #ccfbf1; border-top-color:#14b8a6; border-radius:50%; animation: spin 0.7s linear infinite;"></span>
+        <div style="margin-top:10px; color:#64748b; font-size:13px;">Memuat data...</div>
+    </td></tr>`;
+
+    if (!supabaseClient) {
+        tbody.innerHTML = '';
+        emptyState.style.display = 'block';
+        emptyState.querySelector('h3').textContent = 'Supabase belum dikonfigurasi';
+        emptyState.querySelector('p').textContent = 'Isi SUPABASE_URL dan SUPABASE_ANON_KEY di file admin.html ini.';
+        showToast('Supabase belum dikonfigurasi.');
+        updateStats();
+        return;
+    }
+
+    try {
+        const { data, error } = await supabaseClient
+            .from('survey_responses')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        allData = Array.isArray(data) ? data : [];
+        applyFilter();
+        updateStats();
+        renderTable(); 
+
+        if (allData.length === 0) {
+            tbody.innerHTML = '';
+            emptyState.style.display = 'block';
+            emptyState.querySelector('h3').textContent = 'Belum ada jawaban';
+            emptyState.querySelector('p').textContent = 'Data akan muncul di sini setelah responden mengisi kuesioner.';
+        } else {
+            emptyState.style.display = 'none';
+        }
+
+    } catch (err) {
+        console.error('[Admin] Gagal memuat data:', err);
+        tbody.innerHTML = '';
+        emptyState.style.display = 'block';
+        emptyState.querySelector('h3').textContent = 'Gagal memuat data';
+        emptyState.querySelector('p').textContent = 'Pastikan tabel survey_responses sudah dibuat dan policy SELECT untuk anon sudah aktif.';
+        showToast('Gagal memuat data.');
+    }
+}
+
+function updateStats() {
+    const total = allData.length;
+    document.getElementById('statTotal').textContent = total;
+
+    const now = new Date();
+    const startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const weekAgo = now.getTime() - 7 * 24 * 60 * 60 * 1000;
+
+    let today = 0, week = 0, withEmail = 0;
+    allData.forEach(r => {
+        const t = r.created_at ? new Date(r.created_at).getTime() : 0;
+        if (t >= startToday) today++;
+        if (t >= weekAgo) week++;
+        if (r.email && String(r.email).trim() !== '') withEmail++;
+    });
+
+    document.getElementById('statToday').textContent = today;
+    document.getElementById('statWeek').textContent = week;
+    document.getElementById('statWithEmail').textContent = withEmail;
+}
+
+/* ============================================================
+   FILTER & RENDER
+   ============================================================ */
+const searchInput = document.getElementById('searchInput');
+searchInput.addEventListener('input', () => { applyFilter(); renderTable(); });
+
+function applyFilter() {
+    const q = (searchInput.value || '').trim().toLowerCase();
+    if (!q) { filteredData = allData.slice(); }
+    else {
+        filteredData = allData.filter(r => {
+            const hay = [r.nama, r.email, r.nohp].map(x => (x || '').toString().toLowerCase()).join(' ');
+            return hay.includes(q);
+        });
+    }
+    document.getElementById('filterInfo').textContent = filteredData.length + ' hasil';
+}
+
+function renderTable() {
+    const tbody = document.getElementById('tableBody');
+    if (filteredData.length === 0) {
+        tbody.innerHTML = '';
+        const emptyState = document.getElementById('emptyState');
+        if (allData.length === 0) {
+            emptyState.style.display = 'block';
+        } else {
+            emptyState.style.display = 'block';
+            emptyState.querySelector('h3').textContent = 'Tidak ada hasil';
+            emptyState.querySelector('p').textContent = 'Coba ubah kata kunci pencarian.';
+        }
+        return;
+    }
+
+    document.getElementById('emptyState').style.display = 'none';
+
+    tbody.innerHTML = filteredData.map((r, i) => {
+        const preview = buildPreview(r.answers);
+        return `<tr class="row" data-id="${r.id}">
+            <td>${i + 1}</td>
+            <td class="name">${escapeHtml(r.nama || '—')}</td>
+            <td>${renderContact(r)}</td>
+            <td class="date">${escapeHtml(formatDate(r.created_at))}</td>
+            <td class="preview">${preview}</td>
+        </tr>`;
+    }).join('');
+
+    tbody.querySelectorAll('tr.row').forEach(tr => {
+        tr.addEventListener('click', () => {
+            const id = tr.dataset.id;
+            const row = filteredData.find(x => String(x.id) === String(id));
+            if (row) openModal(row);
+        });
+    });
+}
+
+function renderContact(r) {
+    const parts = [];
+    if (r.nohp && String(r.nohp).trim()) parts.push('📱 ' + escapeHtml(r.nohp));
+    if (r.email && String(r.email).trim()) parts.push('✉️ ' + escapeHtml(r.email));
+    if (parts.length === 0) return '<span class="muted-dash">—</span>';
+    return parts.join('<br>');
+}
+
+function buildPreview(answers) {
+    if (!answers || typeof answers !== 'object') return '<span class="muted-dash">—</span>';
+    // Tampilkan beberapa jawaban ringkas
+    const keys = Object.keys(answers).sort((a, b) => {
+        const na = parseInt(a.replace(/\D/g, ''), 10) || 0;
+        const nb = parseInt(b.replace(/\D/g, ''), 10) || 0;
+        return na - nb;
+    });
+    const showKeys = keys.filter(k => k !== 'Q1' && k !== 'Q2' && k !== 'Q3').slice(0, 3);
+    const chips = showKeys.map(k => {
+        const v = answers[k];
+        const txt = Array.isArray(v) ? v.join(', ') : String(v || '');
+        const short = txt.length > 40 ? txt.slice(0, 40) + '…' : txt;
+        return `<span class="chip">${escapeHtml(short)}</span>`;
+    }).join('');
+    return chips || '<span class="muted-dash">—</span>';
+}
+
+/* ============================================================
+   MODAL DETAIL
+   ============================================================ */
+const modalBg   = document.getElementById('modalBg');
+const modalName = document.getElementById('modalName');
+const modalSub  = document.getElementById('modalSub');
+const modalBody = document.getElementById('modalBody');
+
+document.getElementById('modalClose').addEventListener('click', closeModal);
+modalBg.addEventListener('click', e => { if (e.target === modalBg) closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && modalBg.classList.contains('show')) closeModal(); });
+
+function closeModal() { modalBg.classList.remove('show'); }
+
+function openModal(r) {
+    modalName.textContent = r.nama || '(tanpa nama)';
+    modalSub.textContent = 'Dikirim: ' + formatDate(r.created_at) +
+        (r.email ? ' · ' + r.email : '') + (r.nohp ? ' · ' + r.nohp : '');
+
+    const answers = r.answers && typeof r.answers === 'object' ? r.answers : {};
+    const keys = Object.keys(answers).sort((a, b) => {
+        const na = parseInt(a.replace(/\D/g, ''), 10) || 0;
+        const nb = parseInt(b.replace(/\D/g, ''), 10) || 0;
+        return na - nb;
+    });
+
+    if (keys.length === 0) {
+        modalBody.innerHTML = '<div style="text-align:center; color:#94a3b8; padding:30px 0;">Tidak ada jawaban tersimpan.</div>';
+    } else {
+        modalBody.innerHTML = keys.map(k => {
+            const v = answers[k];
+            let valHtml;
+            if (Array.isArray(v)) {
+                if (v.length === 0) valHtml = '<span class="muted-dash">—</span>';
+                else valHtml = v.map(x => `<span class="chip">${escapeHtml(x)}</span>`).join('');
+            } else {
+                const txt = (v === undefined || v === null || v === '') ? '—' : String(v);
+                valHtml = escapeHtml(txt).replace(/\n/g, '<br>');
+            }
+            return `<div class="answer-item">
+                <div class="a-q">${escapeHtml(k)}</div>
+                <div class="a-a">${valHtml}</div>
+            </div>`;
+        }).join('');
+    }
+
+    modalBg.classList.add('show');
+}
+
+/* ============================================================
+   EXPORT
+   ============================================================ */
+document.getElementById('exportJsonBtn').addEventListener('click', () => {
+    if (filteredData.length === 0) { showToast('Tidak ada data untuk diunduh.'); return; }
+    const blob = new Blob([JSON.stringify(filteredData, null, 2)], { type: 'application/json' });
+    triggerDownload(blob, 'jawaban-kuesioner-' + stamp() + '.json');
+});
+
+document.getElementById('exportCsvBtn').addEventListener('click', () => {
+    if (filteredData.length === 0) { showToast('Tidak ada data untuk diunduh.'); return; }
+    // Kumpulkan semua key jawaban
+    const answerKeys = new Set();
+    filteredData.forEach(r => {
+        if (r.answers && typeof r.answers === 'object') Object.keys(r.answers).forEach(k => answerKeys.add(k));
+    });
+    const sortedKeys = Array.from(answerKeys).sort((a, b) => {
+        const na = parseInt(a.replace(/\D/g, ''), 10) || 0;
+        const nb = parseInt(b.replace(/\D/g, ''), 10) || 0;
+        return na - nb;
+    });
+
+    const header = ['id', 'created_at', 'nama', 'nohp', 'email', ...sortedKeys];
+    const rows = filteredData.map(r => {
+        const row = [r.id, r.created_at || '', r.nama || '', r.nohp || '', r.email || ''];
+        sortedKeys.forEach(k => {
+            const v = r.answers ? r.answers[k] : '';
+            row.push(Array.isArray(v) ? v.join('; ') : (v == null ? '' : String(v)));
+        });
+        return row;
+    });
+
+    const csv = [header, ...rows].map(r => r.map(csvCell).join(',')).join('\r\n');
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+    triggerDownload(blob, 'jawaban-kuesioner-' + stamp() + '.csv');
+});
+
+function csvCell(v) {
+    const s = String(v == null ? '' : v);
+    if (/[",\r\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+    return s;
+}
+function triggerDownload(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    showToast('File berhasil diunduh.');
+}
+function stamp() {
+    const d = new Date();
+    const p = n => String(n).padStart(2, '0');
+    return d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) + '-' +
+           p(d.getHours()) + p(d.getMinutes());
+}
+
+/* ============================================================
+   REFRESH
+   ============================================================ */
+document.getElementById('refreshBtn').addEventListener('click', () => {
+    showToast('Memuat ulang data...');
+    loadData();
+});
+
+/* ============================================================
+   INIT
+   ============================================================ */
+window.addEventListener('load', () => {
+    let ok = false;
+    try { ok = sessionStorage.getItem(SESSION_KEY) === '1'; } catch (e) {}
+    if (ok) showAdmin();
+    else showLogin();
+
+    if (!SUPABASE_CONFIGURED) {
+        console.warn('[Admin] SUPABASE_URL / SUPABASE_ANON_KEY belum diisi.');
+    }
+});
+</script>
+</body>
+</html>
