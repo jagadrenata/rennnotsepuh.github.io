@@ -1,788 +1,1581 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kuesioner NusantaraCAD — Architecture Tools</title>
-<style>
-    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    html, body { margin: 0; min-height: 100%; background: #f0fdfa; color: #1f2937; }
-    :root {
-        --primary: #14b8a6;
-        --primary-dark: #0f766e;
-        --primary-darker: #115e59;
-        --primary-light: #ccfbf1;
-        --primary-soft: #f0fdfa;
-        --dark: #134e4a;
-        --sidebar: #0f766e;
-        --sidebar-hover: #0d9488;
-        --white: #ffffff;
-        --text-muted: #64748b;
-    }
-    .navbar {
-        position: fixed; top: 0; left: 0; right: 0; height: 60px;
-        background: var(--primary); color: white; display: flex; align-items: center;
-        padding: 0 20px; z-index: 1000; box-shadow: 0 2px 10px rgba(15, 118, 110, 0.25);
-    }
-    .menu-button {
-        width: 42px; height: 42px; border: none; border-radius: 8px;
-        background: transparent; color: white; display: flex; align-items: center;
-        justify-content: center; font-size: 26px; line-height: 1; cursor: pointer;
-        margin-right: 12px; transition: background 0.2s ease, transform 0.2s ease;
-    }
-    .menu-button:hover { background: rgba(255, 255, 255, 0.15); }
-    .menu-button:active { transform: scale(0.95); }
-    .navbar-title { font-size: 18px; font-weight: bold; }
-    .sidebar {
-        position: fixed; top: 60px; left: 0; bottom: 0; width: 270px;
-        background: var(--sidebar); color: white; overflow-y: auto;
-        transform: translateX(0); transition: transform 0.3s ease; z-index: 900;
-        box-shadow: 2px 0 10px rgba(15, 118, 110, 0.2); padding-bottom: 20px;
-    }
-    .sidebar.closed { transform: translateX(-100%); }
-    .sidebar a {
-        display: block; padding: 12px 20px; color: white; text-decoration: none;
-        border-left: 3px solid transparent; transition: background 0.2s ease, border-color 0.2s ease;
-        font-size: 13.5px; cursor: pointer;
-    }
-    .sidebar a:hover { background: var(--sidebar-hover); border-left-color: white; }
-    .sidebar a.active { background: var(--sidebar-hover); border-left-color: #ccfbf1; font-weight: 600; }
-    .sidebar-header { padding: 22px 20px 18px; border-bottom: 1px solid rgba(255, 255, 255, 0.15); }
-    .sidebar-brand { font-size: 20px; font-weight: bold; margin-bottom: 5px; }
-    .sidebar-description { font-size: 12px; line-height: 1.5; color: rgba(255, 255, 255, 0.8); }
-    .sidebar-section-title {
-        padding: 18px 20px 8px; font-size: 11px; font-weight: bold;
-        text-transform: uppercase; letter-spacing: 1px; color: rgba(255, 255, 255, 0.65);
-    }
-    .sponsor-card {
-        margin: 10px 14px 18px; padding: 16px;
-        background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.15);
-        border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    }
-    .sponsor-label {
-        display: inline-block; padding: 4px 8px; margin-bottom: 10px;
-        background: var(--primary-light); color: var(--primary-darker);
-        border-radius: 5px; font-size: 10px; font-weight: bold;
-        text-transform: uppercase; letter-spacing: 0.5px;
-    }
-    .sponsor-title { margin: 0 0 6px; font-size: 16px; font-weight: bold; color: white; }
-    .sponsor-title a { display: inline; padding: 0; color: white; border: none; text-decoration: none; }
-    .sponsor-title a:hover { color: var(--primary-light); }
-    .sponsor-text { margin: 0; font-size: 12px; line-height: 1.55; color: rgba(255, 255, 255, 0.82); }
-    .sponsor-text a { display: inline; padding: 0; color: var(--primary-light); border: none; text-decoration: none; font-weight: bold; }
-    .sponsor-text a:hover { text-decoration: underline; }
-    .sponsor-divider { height: 1px; margin: 12px 0; background: rgba(255, 255, 255, 0.15); }
-    .sponsor-company { font-size: 13px; font-weight: bold; color: white; }
-    .sponsor-company a { display: inline; padding: 0; color: var(--primary-light); border: none; text-decoration: none; }
-    .sponsor-company a:hover { text-decoration: underline; }
-    .main {
-        margin-top: 60px; margin-left: 270px; min-height: calc(100vh - 120px);
-        transition: margin-left 0.3s ease, margin-top 0.25s ease; padding: 0;
-    }
-    .main.sidebar-closed { margin-left: 0; }
-    .footer {
-        margin-left: 270px; min-height: 60px; padding: 15px;
-        background: var(--dark); color: white; display: flex;
-        align-items: center; justify-content: center;
-        transition: margin-left 0.3s ease; font-size: 13px;
-    }
-    .footer.sidebar-closed { margin-left: 0; }
-    @media (max-width: 768px) {
-        .navbar { padding: 0 15px; }
-        .sidebar { transform: translateX(-100%); }
-        .sidebar:not(.closed) { transform: translateX(0); }
-        .main, .footer { margin-left: 0; }
-    }
-    body.is-fullscreen .navbar,
-    body.is-fullscreen .sidebar,
-    body.is-fullscreen .footer { display: none !important; }
-    body.is-fullscreen .main {
-        margin-left: 0 !important; margin-top: 0 !important; min-height: 100vh;
-    }
-    body.is-fullscreen .progress-wrap { top: 0; }
-    body.is-fullscreen #screenArea {
-        min-height: calc(100vh - 60px); padding-top: 44px; padding-bottom: 60px;
-    }
-    .exit-fs-btn {
-        position: fixed; top: 14px; right: 14px; z-index: 1500; display: none;
-        align-items: center; gap: 8px; background: rgba(15, 118, 110, 0.92); color: #fff;
-        border: none; border-radius: 10px; padding: 9px 14px; font-size: 12.5px;
-        font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
-        font-family: inherit; backdrop-filter: blur(6px);
-        transition: background 0.2s ease, transform 0.15s ease;
-    }
-    .exit-fs-btn:hover { background: rgba(15, 118, 110, 1); transform: translateY(-1px); }
-    .exit-fs-btn svg { width: 14px; height: 14px; }
-    body.is-fullscreen .exit-fs-btn { display: flex; }
-    .progress-wrap {
-        position: sticky; top: 60px; z-index: 60; background: #fff;
-        padding: 14px 24px 14px; border-bottom: 1px solid #e6eef0;
-        box-shadow: 0 2px 10px rgba(15, 118, 110, 0.04);
-        transition: top 0.25s ease;
-    }
-    .progress-inner { max-width: 780px; margin: 0 auto; }
-    .progress-top {
-        display: flex; justify-content: space-between; font-size: 12.5px;
-        color: var(--text-muted); margin-bottom: 8px; font-weight: 600; gap: 12px;
-    }
-    .progress-top .current-section {
-        color: var(--primary-dark); text-transform: uppercase;
-        letter-spacing: 0.6px; font-size: 11px; white-space: nowrap;
-        overflow: hidden; text-overflow: ellipsis;
-    }
-    .progress-track { height: 8px; background: #e2e8f0; border-radius: 999px; overflow: hidden; }
-    .progress-fill {
-        height: 100%; width: 0; background: linear-gradient(90deg, #2dd4bf, #0f766e);
-        border-radius: 999px; transition: width 0.4s cubic-bezier(.4, 0, .2, 1);
-    }
-    #screenArea { max-width: 780px; margin: 0 auto; padding: 40px 24px 80px; min-height: calc(100vh - 200px); }
-    @media (max-width: 600px) {
-        #screenArea { padding: 28px 16px 60px; }
-        .progress-wrap { padding: 12px 16px; }
-    }
-    .screen-inner { animation: screenIn 0.32s cubic-bezier(.4, 0, .2, 1); }
-    @keyframes screenIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    .welcome-screen { text-align: center; padding: 34px 20px 20px; }
-    .welcome-icon {
-        width: 88px; height: 88px; margin: 0 auto 22px; border-radius: 24px;
-        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-        display: flex; align-items: center; justify-content: center; color: #fff;
-        box-shadow: 0 12px 30px rgba(20, 184, 166, 0.35);
-    }
-    .welcome-icon svg { width: 46px; height: 46px; }
-    .welcome-screen h1 {
-        font-size: 30px; color: var(--primary-darker); margin: 0 0 14px;
-        line-height: 1.25; letter-spacing: -0.4px;
-    }
-    .welcome-screen .lead {
-        font-size: 15px; color: var(--text-muted); line-height: 1.7;
-        max-width: 520px; margin: 0 auto 28px;
-    }
-    .welcome-stats {
-        display: flex; justify-content: center; gap: 12px;
-        flex-wrap: wrap; margin-bottom: 30px;
-    }
-    .stat-chip {
-        background: #fff; border: 1px solid #dbe4e8; border-radius: 12px;
-        padding: 12px 20px; min-width: 110px;
-        box-shadow: 0 2px 10px rgba(15, 118, 110, 0.04);
-    }
-    .stat-chip .n { font-size: 22px; font-weight: 800; color: var(--primary-dark); display: block; line-height: 1.1; }
-    .stat-chip .l {
-        font-size: 11px; color: var(--text-muted); text-transform: uppercase;
-        letter-spacing: 0.6px; font-weight: 700; margin-top: 4px;
-    }
-    .screen-context {
-        display: flex; justify-content: space-between; align-items: center;
-        font-size: 11.5px; font-weight: 700; text-transform: uppercase;
-        letter-spacing: 1px; color: var(--primary-dark); margin-bottom: 14px; gap: 10px;
-    }
-    .screen-context .context-progress {
-        color: var(--text-muted); font-weight: 600; text-transform: none;
-        letter-spacing: 0.3px; font-size: 12px; white-space: nowrap;
-    }
-    .q-card {
-        background: #fff; border: 1px solid #dbe4e8; border-radius: 18px;
-        padding: 32px 32px 26px; box-shadow: 0 6px 26px rgba(15, 118, 110, 0.07);
-        transition: border-color 0.25s, box-shadow 0.25s;
-    }
-    @media (max-width: 600px) { .q-card { padding: 22px 18px 18px; border-radius: 14px; } }
-    .q-card.invalid { border-color: #fca5a5; box-shadow: 0 6px 26px rgba(220, 53, 69, 0.12); }
-    .q-text {
-        display: flex; gap: 10px; font-weight: 700; font-size: 19px;
-        color: #0f172a; line-height: 1.45; margin-bottom: 20px; letter-spacing: -0.2px;
-    }
-    @media (max-width: 600px) { .q-text { font-size: 17px; } }
-    .q-num { color: var(--primary); flex: 0 0 auto; font-weight: 800; }
-    .q-hint {
-        display: block; font-weight: 500; font-size: 13px;
-        color: var(--text-muted); margin-top: 8px; font-style: italic; letter-spacing: 0;
-    }
-    .q-body { display: flex; flex-direction: column; gap: 4px; }
-    .q-error {
-        display: none; color: #dc3545; font-size: 12.5px;
-        margin-top: 14px; font-weight: 600;
-    }
-    .q-card.invalid .q-error { display: block; }
-    .opt {
-        display: flex; align-items: flex-start; gap: 12px; padding: 13px 16px;
-        border-radius: 11px; cursor: pointer; font-size: 14.5px; line-height: 1.5;
-        border: 1.5px solid #e2e8f0;
-        transition: background-color 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
-        color: #334155; background: #fbfdfe;
-    }
-    .opt:hover { background: var(--primary-soft); border-color: #99f6e4; }
-    .opt.checked {
-        background: var(--primary-light); border-color: var(--primary);
-        color: #0f172a; box-shadow: 0 2px 8px rgba(20, 184, 166, 0.15);
-    }
-    .opt input[type="radio"], .opt input[type="checkbox"] {
-        margin: 3px 0 0; width: 18px; height: 18px;
-        accent-color: var(--primary-dark); flex: 0 0 auto; cursor: pointer;
-    }
-    .opt-other { align-items: center; flex-wrap: wrap; }
-    .opt-other input[type="radio"], .opt-other input[type="checkbox"] { margin-top: 0; }
-    .opt-label { display: flex; align-items: center; gap: 12px; cursor: pointer; flex: 0 0 auto; }
-    .opt-label span { white-space: nowrap; }
-    .other-input {
-        flex: 1 1 200px; min-width: 150px; padding: 9px 13px;
-        border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 14px;
-        font-family: inherit; transition: border-color 0.2s, box-shadow 0.2s; background: #fff;
-    }
-    .other-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.18); }
-    .other-input:disabled { background: #f1f5f9; color: #94a3b8; cursor: not-allowed; border-color: #e2e8f0; }
-    .q-textarea {
-        width: 100%; padding: 15px 17px; border: 1.5px solid #cbd5e1;
-        border-radius: 11px; font-size: 14.5px; font-family: inherit;
-        line-height: 1.65; resize: vertical; min-height: 140px;
-        transition: border-color 0.2s, box-shadow 0.2s; background: #fbfdfe;
-    }
-    .q-textarea:focus {
-        outline: none; border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.18); background: #fff;
-    }
-    .q-text-input {
-        width: 100%; padding: 14px 17px; border: 1.5px solid #cbd5e1;
-        border-radius: 11px; font-size: 15px; font-family: inherit;
-        line-height: 1.55; transition: border-color 0.2s, box-shadow 0.2s; background: #fbfdfe;
-    }
-    .q-text-input:focus {
-        outline: none; border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.18); background: #fff;
-    }
-    .empty-note {
-        font-size: 13.5px; color: #92400e; background: #fffbeb;
-        border: 1px dashed #fcd34d; border-radius: 10px;
-        padding: 14px 16px; line-height: 1.6;
-    }
-    .nav-actions {
-        display: flex; justify-content: space-between; align-items: center;
-        margin-top: 22px; gap: 12px;
-    }
-    .nav-actions .right { display: flex; gap: 10px; align-items: center; }
-    .btn {
-        padding: 12px 26px; border: none; border-radius: 10px; cursor: pointer;
-        font-size: 14.5px; font-weight: 700; transition: 0.22s; font-family: inherit;
-        display: inline-flex; align-items: center; gap: 8px;
-    }
-    .btn-success { background-color: #14b8a6; color: white; box-shadow: 0 4px 14px rgba(20, 184, 166, 0.3); }
-    .btn-success:hover:not(:disabled) {
-        background-color: #0f766e; transform: translateY(-1px);
-        box-shadow: 0 6px 18px rgba(20, 184, 166, 0.38);
-    }
-    .btn-success:disabled { opacity: 0.7; cursor: not-allowed; }
-    .btn-ghost { background-color: transparent; color: #475569; border: 1.5px solid #cbd5e1; }
-    .btn-ghost:hover { background-color: #f1f5f9; border-color: #94a3b8; }
-    .btn-ghost:disabled { opacity: 0.4; cursor: not-allowed; }
-    .btn-ghost:disabled:hover { background: transparent; border-color: #cbd5e1; }
-    .product-intro-screen { text-align: center; padding: 8px 0 20px; }
-    .pi-badge {
-        display: inline-block; background: var(--primary-light); color: var(--primary-darker);
-        font-size: 11px; font-weight: 800; text-transform: uppercase;
-        letter-spacing: 1.2px; padding: 7px 14px; border-radius: 999px; margin-bottom: 16px;
-    }
-    .pi-title { font-size: 27px; color: var(--primary-darker); margin: 0 0 10px; letter-spacing: -0.4px; line-height: 1.25; }
-    .pi-subtitle { font-size: 14px; color: var(--text-muted); margin: 0 auto 26px; max-width: 480px; line-height: 1.6; }
-    .pi-card {
-        background: #fff; border: 1px solid #dbe4e8; border-radius: 20px;
-        padding: 34px 30px 30px; box-shadow: 0 10px 34px rgba(15, 118, 110, 0.1);
-        text-align: left; position: relative; overflow: hidden;
-    }
-    @media (max-width: 600px) { .pi-card { padding: 24px 18px 22px; } }
-    .pi-card::before {
-        content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px;
-        background: linear-gradient(90deg, #2dd4bf, #0f766e, #115e59);
-    }
-    .pi-logo {
-        width: 62px; height: 62px; border-radius: 16px;
-        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-        display: flex; align-items: center; justify-content: center; color: #fff;
-        margin-bottom: 18px; box-shadow: 0 8px 22px rgba(20, 184, 166, 0.32);
-    }
-    .pi-logo svg { width: 34px; height: 34px; }
-    .pi-card h3 { margin: 0 0 14px; font-size: 22px; color: var(--primary-darker); letter-spacing: -0.3px; }
-    .pi-card p { font-size: 14.5px; line-height: 1.75; color: #334155; margin: 0 0 14px; }
-    .pi-features {
-        display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 10px; margin-top: 22px; padding-top: 22px; border-top: 1px dashed #cbd5e1;
-    }
-    .pi-feat {
-        display: flex; align-items: center; gap: 10px; font-size: 13.5px;
-        font-weight: 600; color: #334155; background: var(--primary-soft);
-        padding: 11px 14px; border-radius: 10px; border: 1px solid #ccfbf1; line-height: 1.4;
-    }
-    .pi-feat::before {
-        content: ''; flex: 0 0 auto; width: 8px; height: 8px; border-radius: 50%;
-        background: var(--primary); box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15);
-    }
-    .pi-actions { margin-top: 28px; display: flex; justify-content: center; }
-    .done-screen { text-align: center; padding: 24px 0 0; }
-    .check-icon {
-        width: 84px; height: 84px; border-radius: 50%;
-        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-        color: #fff; display: flex; align-items: center; justify-content: center;
-        margin: 0 auto 22px; box-shadow: 0 12px 30px rgba(20, 184, 166, 0.35);
-        animation: popIn 0.5s cubic-bezier(.34, 1.56, .64, 1);
-    }
-    .check-icon svg { width: 42px; height: 42px; }
-    @keyframes popIn {
-        0% { transform: scale(0.5); opacity: 0; }
-        100% { transform: scale(1); opacity: 1; }
-    }
-    .done-screen h2 { font-size: 28px; color: var(--primary-darker); margin: 0 0 12px; letter-spacing: -0.4px; }
-    .done-screen .lead {
-        font-size: 15px; color: var(--text-muted); line-height: 1.7;
-        max-width: 520px; margin: 0 auto 30px;
-    }
-    .done-actions {
-        display: flex; gap: 12px; justify-content: center;
-        flex-wrap: wrap; margin-bottom: 40px;
-    }
-    .summary { text-align: left; margin-top: 10px; }
-    .summary-block {
-        background: #fff; border: 1px solid #dbe4e8; border-radius: 14px;
-        margin-bottom: 16px; overflow: hidden;
-        box-shadow: 0 2px 10px rgba(15, 118, 110, 0.05);
-    }
-    .summary-head {
-        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-        color: #fff; padding: 13px 20px; font-size: 14px; font-weight: 700; letter-spacing: 0.3px;
-    }
-    .summary-body { padding: 8px 20px 14px; }
-    .summary-item { padding: 12px 0; border-bottom: 1px solid #f1f5f9; }
-    .summary-item:last-child { border-bottom: none; }
-    .si-q { font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 6px; line-height: 1.5; }
-    .si-a { font-size: 14px; color: var(--primary-darker); font-weight: 600; line-height: 1.6; }
-    .muted { color: #94a3b8; font-weight: 400; }
-    .toast {
-        position: fixed; left: 50%; bottom: 32px; transform: translate(-50%, 24px);
-        background: #134e4a; color: #fff; padding: 13px 24px; border-radius: 10px;
-        font-size: 13.5px; opacity: 0; pointer-events: none; transition: all 0.3s ease;
-        z-index: 2000; box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
-        max-width: 90vw; text-align: center; font-weight: 500;
-    }
-    .toast.show { opacity: 1; transform: translate(-50%, 0); }
-    .kbd-hint { text-align: center; font-size: 12px; color: #94a3b8; margin-top: 26px; user-select: none; }
-    .kbd {
-        display: inline-block; background: #f1f5f9; border: 1px solid #cbd5e1;
-        border-bottom-width: 2px; border-radius: 5px; padding: 1px 6px;
-        font-family: 'Courier New', monospace; font-size: 11px; color: #475569;
-        margin: 0 2px; font-weight: 700;
-    }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuesioner NusantaraCAD — Architecture Tools</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        html,
+        body {
+            margin: 0;
+            min-height: 100%;
+            background: #f0fdfa;
+            color: #1f2937;
+        }
+
+        :root {
+            --primary: #14b8a6;
+            --primary-dark: #0f766e;
+            --primary-darker: #115e59;
+            --primary-light: #ccfbf1;
+            --primary-soft: #f0fdfa;
+            --dark: #134e4a;
+            --sidebar: #0f766e;
+            --sidebar-hover: #0d9488;
+            --white: #ffffff;
+            --text-muted: #64748b;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(15, 118, 110, 0.25);
+        }
+
+        .menu-button {
+            width: 42px;
+            height: 42px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            line-height: 1;
+            cursor: pointer;
+            margin-right: 12px;
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+
+        .menu-button:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .menu-button:active {
+            transform: scale(0.95);
+        }
+
+        .navbar-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            bottom: 0;
+            width: 270px;
+            background: var(--sidebar);
+            color: white;
+            overflow-y: auto;
+            transform: translateX(0);
+            transition: transform 0.3s ease;
+            z-index: 900;
+            box-shadow: 2px 0 10px rgba(15, 118, 110, 0.2);
+            padding-bottom: 20px;
+        }
+
+        .sidebar.closed {
+            transform: translateX(-100%);
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 12px 20px;
+            color: white;
+            text-decoration: none;
+            border-left: 3px solid transparent;
+            transition: background 0.2s ease, border-color 0.2s ease;
+            font-size: 13.5px;
+            cursor: pointer;
+        }
+
+        .sidebar a:hover {
+            background: var(--sidebar-hover);
+            border-left-color: white;
+        }
+
+        .sidebar a.active {
+            background: var(--sidebar-hover);
+            border-left-color: #ccfbf1;
+            font-weight: 600;
+        }
+
+        .sidebar-header {
+            padding: 22px 20px 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .sidebar-brand {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-description {
+            font-size: 12px;
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .sidebar-section-title {
+            padding: 18px 20px 8px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.65);
+        }
+
+        .sponsor-card {
+            margin: 10px 14px 18px;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .sponsor-label {
+            display: inline-block;
+            padding: 4px 8px;
+            margin-bottom: 10px;
+            background: var(--primary-light);
+            color: var(--primary-darker);
+            border-radius: 5px;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .sponsor-title {
+            margin: 0 0 6px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .sponsor-title a {
+            display: inline;
+            padding: 0;
+            color: white;
+            border: none;
+            text-decoration: none;
+        }
+
+        .sponsor-title a:hover {
+            color: var(--primary-light);
+        }
+
+        .sponsor-text {
+            margin: 0;
+            font-size: 12px;
+            line-height: 1.55;
+            color: rgba(255, 255, 255, 0.82);
+        }
+
+        .sponsor-text a {
+            display: inline;
+            padding: 0;
+            color: var(--primary-light);
+            border: none;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .sponsor-text a:hover {
+            text-decoration: underline;
+        }
+
+        .sponsor-divider {
+            height: 1px;
+            margin: 12px 0;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .sponsor-company {
+            font-size: 13px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .sponsor-company a {
+            display: inline;
+            padding: 0;
+            color: var(--primary-light);
+            border: none;
+            text-decoration: none;
+        }
+
+        .sponsor-company a:hover {
+            text-decoration: underline;
+        }
+
+        .main {
+            margin-top: 60px;
+            margin-left: 270px;
+            min-height: calc(100vh - 120px);
+            transition: margin-left 0.3s ease, margin-top 0.25s ease;
+            padding: 0;
+        }
+
+        .main.sidebar-closed {
+            margin-left: 0;
+        }
+
+        .footer {
+            margin-left: 270px;
+            min-height: 60px;
+            padding: 15px;
+            background: var(--dark);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: margin-left 0.3s ease;
+            font-size: 13px;
+        }
+
+        .footer.sidebar-closed {
+            margin-left: 0;
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 0 15px;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar:not(.closed) {
+                transform: translateX(0);
+            }
+
+            .main,
+            .footer {
+                margin-left: 0;
+            }
+        }
+
+        body.is-fullscreen .navbar,
+        body.is-fullscreen .sidebar,
+        body.is-fullscreen .footer {
+            display: none !important;
+        }
+
+        body.is-fullscreen .main {
+            margin-left: 0 !important;
+            margin-top: 0 !important;
+            min-height: 100vh;
+        }
+
+        body.is-fullscreen .progress-wrap {
+            top: 0;
+        }
+
+        body.is-fullscreen #screenArea {
+            min-height: calc(100vh - 60px);
+            padding-top: 44px;
+            padding-bottom: 60px;
+        }
+
+        .exit-fs-btn {
+            position: fixed;
+            top: 14px;
+            right: 14px;
+            z-index: 1500;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            background: rgba(15, 118, 110, 0.92);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 9px 14px;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+            font-family: inherit;
+            backdrop-filter: blur(6px);
+            transition: background 0.2s ease, transform 0.15s ease;
+        }
+
+        .exit-fs-btn:hover {
+            background: rgba(15, 118, 110, 1);
+            transform: translateY(-1px);
+        }
+
+        .exit-fs-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        body.is-fullscreen .exit-fs-btn {
+            display: flex;
+        }
+
+        .progress-wrap {
+            position: sticky;
+            top: 60px;
+            z-index: 60;
+            background: #fff;
+            padding: 14px 24px 14px;
+            border-bottom: 1px solid #e6eef0;
+            box-shadow: 0 2px 10px rgba(15, 118, 110, 0.04);
+            transition: top 0.25s ease;
+        }
+
+        .progress-inner {
+            max-width: 780px;
+            margin: 0 auto;
+        }
+
+        .progress-top {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12.5px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            font-weight: 600;
+            gap: 12px;
+        }
+
+        .progress-top .current-section {
+            color: var(--primary-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            font-size: 11px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .progress-track {
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, #2dd4bf, #0f766e);
+            border-radius: 999px;
+            transition: width 0.4s cubic-bezier(.4, 0, .2, 1);
+        }
+
+        #screenArea {
+            max-width: 780px;
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+            min-height: calc(100vh - 200px);
+        }
+
+        @media (max-width: 600px) {
+            #screenArea {
+                padding: 28px 16px 60px;
+            }
+
+            .progress-wrap {
+                padding: 12px 16px;
+            }
+        }
+
+        .screen-inner {
+            animation: screenIn 0.32s cubic-bezier(.4, 0, .2, 1);
+        }
+
+        @keyframes screenIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .welcome-screen {
+            text-align: center;
+            padding: 34px 20px 20px;
+        }
+
+        .welcome-icon {
+            width: 88px;
+            height: 88px;
+            margin: 0 auto 22px;
+            border-radius: 24px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            box-shadow: 0 12px 30px rgba(20, 184, 166, 0.35);
+        }
+
+        .welcome-icon svg {
+            width: 46px;
+            height: 46px;
+        }
+
+        .welcome-screen h1 {
+            font-size: 30px;
+            color: var(--primary-darker);
+            margin: 0 0 14px;
+            line-height: 1.25;
+            letter-spacing: -0.4px;
+        }
+
+        .welcome-screen .lead {
+            font-size: 15px;
+            color: var(--text-muted);
+            line-height: 1.7;
+            max-width: 520px;
+            margin: 0 auto 28px;
+        }
+
+        .welcome-stats {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .stat-chip {
+            background: #fff;
+            border: 1px solid #dbe4e8;
+            border-radius: 12px;
+            padding: 12px 20px;
+            min-width: 110px;
+            box-shadow: 0 2px 10px rgba(15, 118, 110, 0.04);
+        }
+
+        .stat-chip .n {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--primary-dark);
+            display: block;
+            line-height: 1.1;
+        }
+
+        .stat-chip .l {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .screen-context {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--primary-dark);
+            margin-bottom: 14px;
+            gap: 10px;
+        }
+
+        .screen-context .context-progress {
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: none;
+            letter-spacing: 0.3px;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .q-card {
+            background: #fff;
+            border: 1px solid #dbe4e8;
+            border-radius: 18px;
+            padding: 32px 32px 26px;
+            box-shadow: 0 6px 26px rgba(15, 118, 110, 0.07);
+            transition: border-color 0.25s, box-shadow 0.25s;
+        }
+
+        @media (max-width: 600px) {
+            .q-card {
+                padding: 22px 18px 18px;
+                border-radius: 14px;
+            }
+        }
+
+        .q-card.invalid {
+            border-color: #fca5a5;
+            box-shadow: 0 6px 26px rgba(220, 53, 69, 0.12);
+        }
+
+        .q-text {
+            display: flex;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 19px;
+            color: #0f172a;
+            line-height: 1.45;
+            margin-bottom: 20px;
+            letter-spacing: -0.2px;
+        }
+
+        @media (max-width: 600px) {
+            .q-text {
+                font-size: 17px;
+            }
+        }
+
+        .q-num {
+            color: var(--primary);
+            flex: 0 0 auto;
+            font-weight: 800;
+        }
+
+        .q-hint {
+            display: block;
+            font-weight: 500;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 8px;
+            font-style: italic;
+            letter-spacing: 0;
+        }
+
+        .q-body {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .q-error {
+            display: none;
+            color: #dc3545;
+            font-size: 12.5px;
+            margin-top: 14px;
+            font-weight: 600;
+        }
+
+        .q-card.invalid .q-error {
+            display: block;
+        }
+
+        .opt {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 13px 16px;
+            border-radius: 11px;
+            cursor: pointer;
+            font-size: 14.5px;
+            line-height: 1.5;
+            border: 1.5px solid #e2e8f0;
+            transition: background-color 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+            color: #334155;
+            background: #fbfdfe;
+        }
+
+        .opt:hover {
+            background: var(--primary-soft);
+            border-color: #99f6e4;
+        }
+
+        .opt.checked {
+            background: var(--primary-light);
+            border-color: var(--primary);
+            color: #0f172a;
+            box-shadow: 0 2px 8px rgba(20, 184, 166, 0.15);
+        }
+
+        .opt input[type="radio"],
+        .opt input[type="checkbox"] {
+            margin: 3px 0 0;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary-dark);
+            flex: 0 0 auto;
+            cursor: pointer;
+        }
+
+        .opt-other {
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .opt-other input[type="radio"],
+        .opt-other input[type="checkbox"] {
+            margin-top: 0;
+        }
+
+        .opt-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            flex: 0 0 auto;
+        }
+
+        .opt-label span {
+            white-space: nowrap;
+        }
+
+        .other-input {
+            flex: 1 1 200px;
+            min-width: 150px;
+            padding: 9px 13px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: #fff;
+        }
+
+        .other-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.18);
+        }
+
+        .other-input:disabled {
+            background: #f1f5f9;
+            color: #94a3b8;
+            cursor: not-allowed;
+            border-color: #e2e8f0;
+        }
+
+        .q-textarea {
+            width: 100%;
+            padding: 15px 17px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 11px;
+            font-size: 14.5px;
+            font-family: inherit;
+            line-height: 1.65;
+            resize: vertical;
+            min-height: 140px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: #fbfdfe;
+        }
+
+        .q-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.18);
+            background: #fff;
+        }
+
+        .q-text-input {
+            width: 100%;
+            padding: 14px 17px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 11px;
+            font-size: 15px;
+            font-family: inherit;
+            line-height: 1.55;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: #fbfdfe;
+        }
+
+        .q-text-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.18);
+            background: #fff;
+        }
+
+        .empty-note {
+            font-size: 13.5px;
+            color: #92400e;
+            background: #fffbeb;
+            border: 1px dashed #fcd34d;
+            border-radius: 10px;
+            padding: 14px 16px;
+            line-height: 1.6;
+        }
+
+        .nav-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 22px;
+            gap: 12px;
+        }
+
+        .nav-actions .right {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 12px 26px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14.5px;
+            font-weight: 700;
+            transition: 0.22s;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-success {
+            background-color: #14b8a6;
+            color: white;
+            box-shadow: 0 4px 14px rgba(20, 184, 166, 0.3);
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background-color: #0f766e;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(20, 184, 166, 0.38);
+        }
+
+        .btn-success:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .btn-ghost {
+            background-color: transparent;
+            color: #475569;
+            border: 1.5px solid #cbd5e1;
+        }
+
+        .btn-ghost:hover {
+            background-color: #f1f5f9;
+            border-color: #94a3b8;
+        }
+
+        .btn-ghost:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .btn-ghost:disabled:hover {
+            background: transparent;
+            border-color: #cbd5e1;
+        }
+
+        .product-intro-screen {
+            text-align: center;
+            padding: 8px 0 20px;
+        }
+
+        .pi-badge {
+            display: inline-block;
+            background: var(--primary-light);
+            color: var(--primary-darker);
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            padding: 7px 14px;
+            border-radius: 999px;
+            margin-bottom: 16px;
+        }
+
+        .pi-title {
+            font-size: 27px;
+            color: var(--primary-darker);
+            margin: 0 0 10px;
+            letter-spacing: -0.4px;
+            line-height: 1.25;
+        }
+
+        .pi-subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin: 0 auto 26px;
+            max-width: 480px;
+            line-height: 1.6;
+        }
+
+        .pi-card {
+            background: #fff;
+            border: 1px solid #dbe4e8;
+            border-radius: 20px;
+            padding: 34px 30px 30px;
+            box-shadow: 0 10px 34px rgba(15, 118, 110, 0.1);
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @media (max-width: 600px) {
+            .pi-card {
+                padding: 24px 18px 22px;
+            }
+        }
+
+        .pi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #2dd4bf, #0f766e, #115e59);
+        }
+
+        .pi-logo {
+            width: 62px;
+            height: 62px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            margin-bottom: 18px;
+            box-shadow: 0 8px 22px rgba(20, 184, 166, 0.32);
+        }
+
+        .pi-logo svg {
+            width: 34px;
+            height: 34px;
+        }
+
+        .pi-card h3 {
+            margin: 0 0 14px;
+            font-size: 22px;
+            color: var(--primary-darker);
+            letter-spacing: -0.3px;
+        }
+
+        .pi-card p {
+            font-size: 14.5px;
+            line-height: 1.75;
+            color: #334155;
+            margin: 0 0 14px;
+        }
+
+        .pi-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+            margin-top: 22px;
+            padding-top: 22px;
+            border-top: 1px dashed #cbd5e1;
+        }
+
+        .pi-feat {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #334155;
+            background: var(--primary-soft);
+            padding: 11px 14px;
+            border-radius: 10px;
+            border: 1px solid #ccfbf1;
+            line-height: 1.4;
+        }
+
+        .pi-feat::before {
+            content: '';
+            flex: 0 0 auto;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--primary);
+            box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15);
+        }
+
+        .pi-actions {
+            margin-top: 28px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .done-screen {
+            text-align: center;
+            padding: 24px 0 0;
+        }
+
+        .check-icon {
+            width: 84px;
+            height: 84px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 22px;
+            box-shadow: 0 12px 30px rgba(20, 184, 166, 0.35);
+            animation: popIn 0.5s cubic-bezier(.34, 1.56, .64, 1);
+        }
+
+        .check-icon svg {
+            width: 42px;
+            height: 42px;
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .done-screen h2 {
+            font-size: 28px;
+            color: var(--primary-darker);
+            margin: 0 0 12px;
+            letter-spacing: -0.4px;
+        }
+
+        .done-screen .lead {
+            font-size: 15px;
+            color: var(--text-muted);
+            line-height: 1.7;
+            max-width: 520px;
+            margin: 0 auto 30px;
+        }
+
+        .done-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+        }
+
+        .summary {
+            text-align: left;
+            margin-top: 10px;
+        }
+
+        .summary-block {
+            background: #fff;
+            border: 1px solid #dbe4e8;
+            border-radius: 14px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(15, 118, 110, 0.05);
+        }
+
+        .summary-head {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff;
+            padding: 13px 20px;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        .summary-body {
+            padding: 8px 20px 14px;
+        }
+
+        .summary-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .si-q {
+            font-size: 13px;
+            font-weight: 700;
+            color: #475569;
+            margin-bottom: 6px;
+            line-height: 1.5;
+        }
+
+        .si-a {
+            font-size: 14px;
+            color: var(--primary-darker);
+            font-weight: 600;
+            line-height: 1.6;
+        }
+
+        .muted {
+            color: #94a3b8;
+            font-weight: 400;
+        }
+
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 32px;
+            transform: translate(-50%, 24px);
+            background: #134e4a;
+            color: #fff;
+            padding: 13px 24px;
+            border-radius: 10px;
+            font-size: 13.5px;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s ease;
+            z-index: 2000;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
+            max-width: 90vw;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+
+        .kbd-hint {
+            text-align: center;
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 26px;
+            user-select: none;
+        }
+
+        .kbd {
+            display: inline-block;
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            border-bottom-width: 2px;
+            border-radius: 5px;
+            padding: 1px 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            color: #475569;
+            margin: 0 2px;
+            font-weight: 700;
+        }
+    </style>
 </head>
+
 <body>
 
-<button id="exitFsBtn" class="exit-fs-btn" type="button" aria-label="Keluar dari mode layar penuh">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="18" y1="6" x2="6" y2="18"></line>
-        <line x1="6" y1="6" x2="18" y2="18"></line>
-    </svg>
-    <span>Keluar Layar Penuh</span>
-</button>
+    <button id="exitFsBtn" class="exit-fs-btn" type="button" aria-label="Keluar dari mode layar penuh">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+            stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+        <span>Keluar Layar Penuh</span>
+    </button>
 
-<nav class="navbar">
-    <button id="menuButton" class="menu-button" type="button" aria-label="Buka sidebar" aria-expanded="true" aria-controls="sidebar">&#9776;</button>
-    <div class="navbar-title">Architecture Tools — Kuesioner</div>
-</nav>
+    <nav class="navbar">
+        <button id="menuButton" class="menu-button" type="button" aria-label="Buka sidebar" aria-expanded="true"
+            aria-controls="sidebar">&#9776;</button>
+        <div class="navbar-title">Architecture Tools — Kuesioner</div>
+    </nav>
 
-<aside id="sidebar" class="sidebar">
-    <div class="sidebar-header">
-        <div class="sidebar-brand">Architecture Tools</div>
-        <div class="sidebar-description">Kuesioner riset produk NusantaraCAD untuk pelajar dan profesional CAD.</div>
-    </div>
-    <div class="sidebar-section-title">Navigasi</div>
-    <div id="sidebarNav"></div>
-    <div class="sidebar-section-title">Sponsor</div>
-    <div class="sponsor-card">
-        <div class="sponsor-label">Disponsori oleh</div>
-        <h3 class="sponsor-title"><a href="https://nusantaracad.id" target="_blank" rel="noopener noreferrer">NusantaraCAD</a></h3>
-        <p class="sponsor-text">AI CAD buatan anak bangsa Indonesia untuk membantu proses desain dan rekayasa secara lebih cerdas.</p>
-        <div class="sponsor-divider"></div>
-        <div class="sponsor-company">Bagian dari <a href="https://digikarta.web.id" target="_blank" rel="noopener noreferrer">DigiKarta</a></div>
-    </div>
-</aside>
-
-<main id="main" class="main">
-    <div class="progress-wrap" id="progressWrap">
-        <div class="progress-inner">
-            <div class="progress-top">
-                <span class="current-section" id="currentSectionLabel">Kuesioner</span>
-                <span id="progressCount">Pertanyaan 0 dari 0</span>
+    <aside id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-brand">Architecture Tools</div>
+            <div class="sidebar-description">Kuesioner riset produk NusantaraCAD untuk pelajar dan profesional CAD.
             </div>
-            <div class="progress-track"><div id="progressBar" class="progress-fill"></div></div>
         </div>
-    </div>
-    <div id="screenArea"></div>
-</main>
+        <div class="sidebar-section-title">Navigasi</div>
+        <div id="sidebarNav"></div>
+        <div class="sidebar-section-title">Sponsor</div>
+        <div class="sponsor-card">
+            <div class="sponsor-label">Disponsori oleh</div>
+            <h3 class="sponsor-title"><a href="https://nusantaracad.id" target="_blank"
+                    rel="noopener noreferrer">NusantaraCAD</a></h3>
+            <p class="sponsor-text">AI CAD buatan anak bangsa Indonesia untuk membantu proses desain dan rekayasa secara
+                lebih cerdas.</p>
+            <div class="sponsor-divider"></div>
+            <div class="sponsor-company">Bagian dari <a href="https://digikarta.web.id" target="_blank"
+                    rel="noopener noreferrer">DigiKarta</a></div>
+        </div>
+    </aside>
 
-<footer id="footer" class="footer">&copy; 2026 Architecture Tools</footer>
+    <main id="main" class="main">
+        <div class="progress-wrap" id="progressWrap">
+            <div class="progress-inner">
+                <div class="progress-top">
+                    <span class="current-section" id="currentSectionLabel">Kuesioner</span>
+                    <span id="progressCount">Pertanyaan 0 dari 0</span>
+                </div>
+                <div class="progress-track">
+                    <div id="progressBar" class="progress-fill"></div>
+                </div>
+            </div>
+        </div>
+        <div id="screenArea"></div>
+    </main>
 
-<div id="toast" class="toast"></div>
+    <footer id="footer" class="footer">&copy; 2026 Architecture Tools</footer>
 
-<!-- Supabase JS SDK -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <div id="toast" class="toast"></div>
 
-<script>
-/* ============================================================
-   KONFIGURASI SUPABASE
-   Ganti dua nilai di bawah dengan milikmu (Project Settings → API).
-   ============================================================ */
-const SUPABASE_URL      = 'https://qhvckorlmdgswgleugyu.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFodmNrb3JsbWRnc3dnbGV1Z3l1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk2NTc0MjYsImV4cCI6MjEwNTIzMzQyNn0.P0L59nbWveuSpzt6Ei73FjloZjmV9E9TbbWdKbQrxKA';
+    <!-- Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-let supabaseClient = null;
-const SUPABASE_CONFIGURED = !SUPABASE_URL.includes('YOUR-PROJECT') && !SUPABASE_ANON_KEY.includes('YOUR-ANON');
-if (SUPABASE_CONFIGURED && window.supabase) {
-    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-}
+    <script>
+        /* ============================================================
+           KONFIGURASI SUPABASE
+           Ganti dua nilai di bawah dengan milikmu (Project Settings → API).
+           ============================================================ */
+        const SUPABASE_URL = 'https://qhvckorlmdgswgleugyu.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFodmNrb3JsbWRnc3dnbGV1Z3l1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk2NTc0MjYsImV4cCI6MjEwNTIzMzQyNn0.P0L59nbWveuSpzt6Ei73FjloZjmV9E9TbbWdKbQrxKA';
 
-/* ============================================================
-   DATA KUESIONER
-   ============================================================ */
-const SURVEY = [
-    {
-        id: 'identitas',
-        nav: 'Identitas Responden',
-        title: 'Identitas Responden',
-        desc: 'Data dasar responden',
-        questions: [
-            { no: 1, id: 'nama', type: 'text', required: true,
-              text: 'Siapa nama lengkap kamu?',
-              hint: 'Nama akan digunakan hanya untuk keperluan penelitian',
-              placeholder: 'Tulis nama lengkap kamu di sini...' },
-            { no: 2, id: 'nohp', type: 'text', required: false,
-              text: 'Berapa nomor HP kamu?',
-              hint: 'Opsional — boleh dikosongkan',
-              placeholder: 'Contoh: 08123456789' },
-            { no: 3, id: 'email', type: 'text', required: false,
-              text: 'Apa alamat email kamu?',
-              hint: 'Opsional — boleh dikosongkan',
-              placeholder: 'Contoh: nama@email.com' }
-        ]
-    },
-    {
-        id: 'bagian1',
-        nav: 'Profil & Penggunaan',
-        title: 'Bagian 1 — Profil & Penggunaan',
-        desc: 'Data demografi dasar dan perilaku umum',
-        questions: [
-            { no: 4, id: 'q1', type: 'radio', required: true,
-              text: 'Kamu saat ini berada di jenjang pendidikan apa?',
-              options: ['SMK', 'SMA/MA', 'D3', 'D4', 'S1'], other: true },
-            { no: 5, id: 'q2', type: 'radio', required: true,
-              text: 'Jurusan/program keahlian kamu apa?',
-              options: ['Teknik Arsitektur', 'Teknik Sipil', 'Teknik Mesin', 'Teknik Elektro', 'Desain/Multimedia'], other: true },
-            { no: 6, id: 'q3', type: 'radio', required: true,
-              text: 'Di mana kamu berdomisili saat ini?',
-              options: ['Pulau Jawa', 'Sumatra', 'Kalimantan', 'Sulawesi', 'Bali/Nusa Tenggara', 'Maluku/Papua'], other: true },
-            { no: 7, id: 'q4', type: 'checkbox', required: true,
-              text: 'Software CAD apa yang paling sering kamu gunakan?',
-              hint: 'Boleh pilih lebih dari satu',
-              options: ['AutoCAD', 'Autodesk Revit', 'SketchUp', 'SolidWorks', 'Fusion', 'ArchiCAD', 'FreeCAD'], other: true },
-            { no: 8, id: 'q5', type: 'radio', required: true,
-              text: 'Seberapa sering kamu menggunakan software CAD?',
-              options: ['Setiap hari', 'Beberapa kali dalam seminggu', 'Beberapa kali dalam sebulan', 'Hanya ketika ada tugas/proyek', 'Sangat jarang'] },
-            { no: 9, id: 'q6', type: 'checkbox', required: true,
-              text: 'Biasanya kamu menggunakan CAD untuk keperluan apa?',
-              hint: 'Boleh pilih lebih dari satu',
-              options: ['Tugas sekolah/kuliah', 'Praktik/laboratorium', 'Proyek pribadi', 'Magang', 'Freelance', 'Pekerjaan profesional', 'Lomba/proyek organisasi'], other: true }
-        ]
-    },
-    {
-        id: 'bagian2',
-        nav: 'Problem Discovery',
-        title: 'Bagian 2 — Problem Discovery',
-        desc: 'Validasi apakah masalah pengguna benar-benar ada',
-        questions: [
-            { no: 10, id: 'q7', type: 'checkbox', required: true,
-              text: 'Apa kesulitan yang paling sering kamu alami saat menggunakan software CAD?',
-              hint: 'Boleh pilih lebih dari satu',
-              options: [
-                'Sulit mempelajari fitur/perintah tertentu',
-                'Proses menggambar atau modeling terlalu lama',
-                'Komputer/laptop kurang kuat menjalankan software',
-                'Software sering lambat atau mengalami crash',
-                'Sulit membuat gambar sesuai standar',
-                'Sulit mengatur layer, objek, atau komponen',
-                'Kesulitan membuat anotasi/dimensi',
-                'Kesulitan melakukan revisi desain',
-                'Kesulitan mengintegrasikan pekerjaan dengan software lain (fragmentasi data)',
-                'Masalah lisensi atau akses software',
-                'Tidak mengalami kesulitan berarti'
-              ],
-              other: true,
-              exclusive: 'Tidak mengalami kesulitan berarti' },
-            { no: 11, id: 'q8', type: 'radio', required: true,
-              text: 'Dari masalah-masalah di atas, mana yang paling sangat mengganggu proses belajarmu/kerjamu?',
-              hint: 'Pilihan menyesuaikan jawaban nomor 10',
-              dynamicFrom: 'q7', other: true },
-            { no: 12, id: 'q9', type: 'radio', required: true,
-              text: 'Seberapa sering masalah utama tersebut terjadi?',
-              options: ['Hampir setiap kali menggunakan CAD', 'Cukup sering', 'Kadang-kadang', 'Jarang', 'Sangat jarang / tidak pernah'] },
-            { no: 13, id: 'q10', type: 'radio', required: true,
-              text: 'Apa dampak masalah tersebut terhadap tugas atau pekerjaanmu?',
-              options: ['Pengerjaan menjadi lebih lama', 'Harus mengulang pekerjaan', 'Mengurangi waktu untuk tugas lainnya', 'Membutuhkan bantuan orang lain', 'Hasil pekerjaan menjadi kurang optimal', 'Tidak terlalu berdampak'],
-              other: true }
-        ]
-    },
-    {
-        id: 'bagian3',
-        nav: 'Case Discovery',
-        title: 'Bagian 3 — Case Discovery',
-        desc: 'Menggali pengalaman riil dari masalah masa lalu',
-        questions: [
-            { no: 14, id: 'q11', type: 'radio', required: true,
-              text: 'Kapan terakhir kali kamu mengalami kesulitan saat menggunakan CAD?',
-              hint: 'Jika memilih "Tidak pernah mengalami masalah", kamu akan langsung menuju Bagian 5',
-              options: ['Hari ini', 'Dalam 1 minggu terakhir', 'Dalam 1 bulan terakhir', '1–3 bulan lalu', 'Lebih dari 3 bulan lalu', 'Tidak pernah mengalami masalah'] },
-            { no: 15, id: 'q12', type: 'radio', required: true,
-              text: 'Saat itu, kamu sedang mengerjakan apa?',
-              options: ['Gambar denah/tampak/potongan', 'Modeling 3D', 'Gambar teknik', 'Desain rumah/bangunan', 'Desain mekanikal', 'Desain elektrikal', 'Tugas/praktik lainnya'], other: true },
-            { no: 16, id: 'q13', type: 'textarea', required: true,
-              text: 'Pada pengalaman tersebut, bagian mana yang paling memakan waktu atau paling sulit?',
-              hint: 'Tuliskan jawabanmu secara deskriptif' }
-        ]
-    },
-    {
-        id: 'bagian4',
-        nav: 'Current Solution',
-        title: 'Bagian 4 — Current Solution',
-        desc: 'Melihat bagaimana pengguna mengatasi masalah saat ini',
-        questions: [
-            { no: 17, id: 'q14', type: 'checkbox', required: true,
-              text: 'Ketika mengalami kesulitan menggunakan CAD, apa yang biasanya kamu lakukan?',
-              hint: 'Boleh pilih lebih dari satu',
-              options: [
-                'Mencari tutorial di YouTube',
-                'Mencari tutorial/artikel melalui Google',
-                'Bertanya kepada guru/dosen',
-                'Bertanya kepada teman',
-                'Menggunakan AI seperti ChatGPT/Gemini',
-                'Mencari software alternatif',
-                'Menggunakan fitur atau cara lain di software yang sama',
-                'Membiarkan masalah tersebut dan mengerjakannya secara manual',
-                'Tidak melakukan apa-apa'
-              ], other: true },
-            { no: 18, id: 'q15', type: 'radio', required: true,
-              text: 'Seberapa puas kamu dengan cara yang kamu gunakan saat ini untuk mengatasi masalah tersebut?',
-              options: ['Sangat puas', 'Puas', 'Cukup', 'Tidak puas', 'Sangat tidak puas'] },
-            { no: 19, id: 'q16', type: 'checkbox', required: true,
-              text: 'Apa kekurangan terbesar dari cara yang kamu gunakan saat ini?',
-              hint: 'Boleh pilih lebih dari satu',
-              options: ['Membutuhkan waktu terlalu lama', 'Jawabannya tidak selalu sesuai kebutuhan', 'Sulit menemukan tutorial yang tepat', 'Harus meminta bantuan orang lain', 'Membutuhkan software/perangkat tambahan', 'Hasilnya tidak selalu akurat', 'Sebenarnya sudah cukup dan tidak ada kekurangan berarti'], other: true }
-        ]
-    },
-    {
-        id: 'bagian5',
-        nav: 'Lisensi & Keamanan',
-        title: 'Bagian 5 — Lisensi & Keamanan',
-        desc: 'Menganalisis ketergantungan pada software tidak resmi',
-        questions: [
-            { no: 20, id: 'q17', type: 'radio', required: true,
-              text: 'Versi software CAD yang paling sering kamu gunakan saat ini berasal dari mana?',
-              options: ['Lisensi resmi/berbayar', 'Lisensi edukasi/student', 'Versi gratis/open-source', 'Versi trial/evaluation', 'Tidak tahu, diinstallkan orang lain', 'Bajakan / Crack / Patcher'], other: true },
-            { no: 21, id: 'q18', type: 'checkbox', required: true,
-              text: 'Jika kamu pernah/sedang menggunakan software CAD tanpa lisensi resmi (bajakan), apa alasan utamanya?',
-              hint: 'Boleh pilih lebih dari satu',
-              options: [
-                'Harga lisensi komersial software konvensional terlalu mahal',
-                'Tidak mengetahui adanya lisensi edukasi',
-                'Sulit mendapatkan lisensi resmi',
-                'Membutuhkan fitur yang hanya tersedia pada versi tertentu',
-                'Mengikuti software yang digunakan teman/sekolah',
-                'Sudah tersedia di komputer dari orang lain',
-                'Hanya untuk mencoba/mempelajari software'
-              ], other: true },
-            { no: 22, id: 'q19', type: 'checkbox', required: true,
-              text: 'Apa yang paling sering kamu rasakan atau pikirkan ketika menggunakan software CAD bajakan tersebut?',
-              hint: 'Boleh pilih lebih dari satu',
-              options: [
-                'Merasa terpaksa karena tidak mampu membeli yang asli',
-                'Sering khawatir perangkat rusak atau tugas hilang mendadak karena bug/crash',
-                'Merasa bersalah karena melanggar hak cipta',
-                'Merasa biasa saja karena banyak teman yang juga memakai'
-              ], other: true },
-            { no: 23, id: 'q20', type: 'radio', required: true,
-              text: 'Apakah kamu mengetahui bahwa menggunakan file bajakan membawa risiko keamanan (virus/malware), melanggar undang-undang dan membatasi akses ke fitur pembaruan resmi?',
-              options: ['Tahu dan khawatir', 'Tahu, tapi terpaksa mengabaikannya', 'Tidak tahu sama sekali'] }
-        ]
-    },
-    {
-        id: 'bagian6',
-        nav: 'Artificial Intelligence',
-        title: 'Bagian 6 — Artificial Intelligence (AI)',
-        desc: 'Validasi adaptasi teknologi',
-        questions: [
-            { no: 24, id: 'q21', type: 'radio', required: true,
-              text: 'Seberapa sering kamu menggunakan AI untuk membantu mengerjakan tugas atau pekerjaan CAD?',
-              options: ['Tidak pernah', 'Jarang', 'Kadang-kadang', 'Sering', 'Hampir selalu'] },
-            { no: 25, id: 'q22', type: 'checkbox', required: true,
-              text: 'Jika pernah menggunakan AI, biasanya AI digunakan untuk apa?',
-              hint: 'Boleh pilih lebih dari satu',
-              options: [
-                'Mempelajari cara menggunakan fitur CAD',
-                'Mencari solusi ketika mengalami error',
-                'Mencari ide desain',
-                'Membantu membuat atau memahami perintah/script',
-                'Membantu dokumentasi/anotasi',
-                'Membantu pekerjaan lainnya',
-                'Belum pernah menggunakan AI untuk CAD'
-              ], other: true,
-              exclusive: 'Belum pernah menggunakan AI untuk CAD' }
-        ]
-    },
-    {
-        id: 'bagian7',
-        nav: 'Product Discovery',
-        title: 'Bagian 7 — Product Discovery',
-        desc: 'Validasi ketertarikan pada solusi',
-        productIntro: {
-            badge: 'Bagian 7 — Product Discovery',
-            title: 'Mengenal NusantaraCAD',
-            subtitle: 'Bacalah deskripsi produk berikut dengan saksama sebelum melanjutkan ke pertanyaan.',
-            name: 'NusantaraCAD',
-            paragraphs: [
-                'NusantaraCAD adalah aplikasi menggambar dan mendesain bangunan atau mesin yang mudah digunakan langsung dari komputer, laptop maupun browser internet, tanpa perlu beban yang berat.',
-                'Berbeda dengan software desain biasa yang mahal dan rumit, NusantaraCAD hadir secara legal dan gratis untuk pelajar, serta dilengkapi asisten kecerdasan buatan (AI) yang bisa membantu membuat gambar teknik otomatis hanya lewat perintah teks sederhana.'
-            ],
-            features: ['AI Text-to-CAD', 'Berbasis Browser', 'Format .NUSCAD Terpadu', 'Gratis untuk Pelajar']
-        },
-        questions: [
-            { no: 26, id: 'q23', type: 'radio', required: true,
-              text: 'Berdasarkan konsep tersebut, seberapa relevan NusantaraCAD dengan kebutuhanmu saat menggunakan CAD?',
-              options: ['Sangat relevan', 'Relevan', 'Cukup relevan', 'Kurang relevan', 'Tidak relevan'] },
-            { no: 27, id: 'q24', type: 'checkbox', required: true,
-              text: 'Fitur/konsep mana yang paling berpotensi membantu pekerjaanmu?',
-              hint: 'Pilih lebih dari 1',
-              options: [
-                'Generasi dan modifikasi desain otomatis melalui perintah AI (Text-to-CAD)',
-                'Akses instan melalui Web Browser tanpa instalasi rumit',
-                'Satu format file (.NUSCAD) yang menyimpan data arsitektur, mekanikal, dan elektrikal sekaligus',
-                'Asisten otomatisasi drafting dan pemeriksaan standar benturan (clash detection)',
-                'Penawaran perangkat lunak legal secara gratis untuk sektor edukasi/pelajar'
-              ], other: true },
-            { no: 28, id: 'q25', type: 'checkbox', required: true,
-              text: 'Apa yang paling membuatmu ragu untuk menggunakan NusantaraCAD?',
-              hint: 'Boleh pilih lebih dari satu',
-              options: [
-                'Belum yakin kualitas/akurasi hasil AI',
-                'Khawatir sulit dipelajari',
-                'Khawatir fitur tidak selengkap software CAD yang sudah digunakan',
-                'Khawatir masalah kompatibilitas file dengan software lain',
-                'Khawatir performanya lambat',
-                'Lebih nyaman menggunakan software yang sudah dikenal',
-                'Khawatir soal keamanan/privasi data',
-                'Tidak memiliki kebutuhan terhadap produk tersebut',
-                'Tidak ada kekhawatiran khusus'
-              ], other: true }
-        ]
-    },
-    {
-        id: 'bagian8',
-        nav: 'Willingness to Pay',
-        title: 'Bagian 8 — Willingness to Pay',
-        desc: 'Validasi nilai komersial dari solusi',
-        questions: [
-            { no: 29, id: 'q26', type: 'radio', required: true,
-              text: 'Jika NusantaraCAD terbukti dapat membantu mengurangi waktu atau kesulitan dalam pekerjaan CAD, seberapa besar kemungkinan kamu bersedia membayar lisensinya ketika nanti sudah lulus dan bekerja sebagai profesional?',
-              options: ['Sangat mungkin', 'Mungkin', 'Masih mempertimbangkan', 'Kemungkinan kecil', 'Tidak bersedia membayar'] },
-            { no: 30, id: 'q27', type: 'radio', required: true,
-              text: 'Berapa biaya langganan bulanan yang menurutmu masih masuk akal untuk software CAD terintegrasi AI yang akan kamu gunakan untuk pekerjaan profesional?',
-              options: [
-                '< Rp50.000/bulan',
-                'Rp50.000 – Rp100.000/bulan',
-                'Rp100.001 – Rp250.000/bulan',
-                'Rp250.001 – Rp500.000/bulan',
-                'Rp500.001 – Rp1.000.000/bulan',
-                '> Rp1.000.000/bulan',
-                'Saya tidak bersedia membayar langganan bulanan',
-                'Tidak tahu/belum bisa memperkirakan'
-              ] },
-            { no: 31, id: 'q28', type: 'textarea', required: true,
-              text: 'Apa alasan utama kamu memilih rentang harga tersebut?',
-              hint: 'Tuliskan alasanmu singkat' }
-        ]
-    }
-];
+        let supabaseClient = null;
+        const SUPABASE_CONFIGURED = !SUPABASE_URL.includes('YOUR-PROJECT') && !SUPABASE_ANON_KEY.includes('YOUR-ANON');
+        if (SUPABASE_CONFIGURED && window.supabase) {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
 
-const QMAP = {};
-SURVEY.forEach(sec => sec.questions.forEach(q => { QMAP[q.id] = q; }));
-
-const state = {};
-let screens = [];
-let currentIndex = 0;
-let focusTarget = null;
-let autoAdvanceTimer = null;
-let submitting = false;
-let hasSubmitted = false;
-
-function escapeHtml(s) {
-    return String(s === undefined || s === null ? '' : s).replace(/[&<>"']/g, c => (
-        { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
-    ));
-}
-const escapeAttr = escapeHtml;
-
-function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    clearTimeout(showToast._t);
-    showToast._t = setTimeout(() => t.classList.remove('show'), 2600);
-}
-
-function clearAutoAdvance() {
-    if (autoAdvanceTimer) { clearTimeout(autoAdvanceTimer); autoAdvanceTimer = null; }
-}
-
-function isQuestionVisible(q) {
-    if (q.id === 'q8' || q.id === 'q9' || q.id === 'q10') {
-        const v = state.q7;
-        if (Array.isArray(v) && v.length === 1 && v[0] === 'Tidak mengalami kesulitan berarti') return false;
-        return true;
-    }
-    if (q.id === 'q14' || q.id === 'q15' || q.id === 'q16') {
-        return state.q11 !== 'Tidak pernah mengalami masalah';
-    }
-    return true;
-}
-
-function buildScreens() {
-    const list = [{ type: 'welcome', key: 'welcome' }];
-    let productIntroAdded = false;
-
-    SURVEY.forEach(sec => {
-        sec.questions.forEach(q => {
-            if (!isQuestionVisible(q)) return;
-            if (sec.productIntro && !productIntroAdded) {
-                list.push({ type: 'product-intro', key: 'product-intro-' + sec.id, section: sec, intro: sec.productIntro });
-                productIntroAdded = true;
+        /* ============================================================
+           DATA KUESIONER
+           ============================================================ */
+        const SURVEY = [
+            {
+                id: 'identitas',
+                nav: 'Identitas Responden',
+                title: 'Identitas Responden',
+                desc: 'Data dasar responden',
+                questions: [
+                    {
+                        no: 1, id: 'nama', type: 'text', required: true,
+                        text: 'Siapa nama lengkap kamu?',
+                        hint: 'Nama akan digunakan hanya untuk keperluan penelitian',
+                        placeholder: 'Tulis nama lengkap kamu di sini...'
+                    },
+                    {
+                        no: 2, id: 'nohp', type: 'text', required: false,
+                        text: 'Berapa nomor HP kamu?',
+                        hint: 'Opsional — boleh dikosongkan',
+                        placeholder: 'Contoh: 08123456789'
+                    },
+                    {
+                        no: 3, id: 'email', type: 'text', required: false,
+                        text: 'Apa alamat email kamu?',
+                        hint: 'Opsional — boleh dikosongkan',
+                        placeholder: 'Contoh: nama@email.com'
+                    }
+                ]
+            },
+            {
+                id: 'bagian1',
+                nav: 'Profil & Penggunaan',
+                title: 'Bagian 1 — Profil & Penggunaan',
+                desc: 'Data demografi dasar dan perilaku umum',
+                questions: [
+                    {
+                        no: 4, id: 'q1', type: 'radio', required: true,
+                        text: 'Kamu saat ini berada di jenjang pendidikan apa?',
+                        options: ['SMK', 'SMA/MA', 'D3', 'D4', 'S1'], other: true
+                    },
+                    {
+                        no: 5, id: 'q2', type: 'radio', required: true,
+                        text: 'Jurusan/program keahlian kamu apa?',
+                        options: ['Teknik Arsitektur', 'Teknik Sipil', 'Teknik Mesin', 'Teknik Elektro', 'Desain/Multimedia'], other: true
+                    },
+                    {
+                        no: 6, id: 'q3', type: 'radio', required: true,
+                        text: 'Apa nama sekolah kamu saat ini?',
+                        hint: 'Pilih salah satu. Jika sekolahmu tidak ada di daftar, pilih "Lainnya" dan tuliskan namanya.',
+                        options: [
+                            'SMK Negeri 1 Pajangan',
+                            'SMK Negeri 1 Sedayu',
+                            'SMKN 1 Seyegan',
+                            'SMKN 2 Depok',
+                            'SMKS Muhammadiyah Pakem',
+                            'SMK 45 Wonosari',
+                            'SMKN 2 Wonosari',
+                            'SMKN 1 Ngawen',
+                            'SMK N 2 Pengasih',
+                            'SMKS Muhammadiyah 3 Yogyakarta',
+                            'SMKN 2 Yogyakarta',
+                            'SMKN 3 Yogyakarta'
+                        ], other: true
+                    },
+                    {
+                        no: 7, id: 'q4', type: 'checkbox', required: true,
+                        text: 'Software CAD apa yang paling sering kamu gunakan?',
+                        hint: 'Boleh pilih lebih dari satu',
+                        options: ['AutoCAD', 'Autodesk Revit', 'SketchUp', 'SolidWorks', 'Fusion', 'ArchiCAD', 'FreeCAD'], other: true
+                    },
+                    {
+                        no: 8, id: 'q5', type: 'radio', required: true,
+                        text: 'Seberapa sering kamu menggunakan software CAD?',
+                        options: ['Setiap hari', 'Beberapa kali dalam seminggu', 'Beberapa kali dalam sebulan', 'Hanya ketika ada tugas/proyek', 'Sangat jarang']
+                    },
+                    {
+                        no: 9, id: 'q6', type: 'checkbox', required: true,
+                        text: 'Biasanya kamu menggunakan CAD untuk keperluan apa?',
+                        hint: 'Boleh pilih lebih dari satu',
+                        options: ['Tugas sekolah/kuliah', 'Praktik/laboratorium', 'Proyek pribadi', 'Magang', 'Freelance', 'Pekerjaan profesional', 'Lomba/proyek organisasi'], other: true
+                    }
+                ]
+            },
+            {
+                id: 'bagian2',
+                nav: 'Problem Discovery',
+                title: 'Bagian 2 — Problem Discovery',
+                desc: 'Validasi apakah masalah pengguna benar-benar ada',
+                questions: [
+                    {
+                        no: 10, id: 'q7', type: 'checkbox', required: true,
+                        text: 'Apa kesulitan yang paling sering kamu alami saat menggunakan software CAD?',
+                        hint: 'Boleh pilih lebih dari satu',
+                        options: [
+                            'Sulit mempelajari fitur/perintah tertentu',
+                            'Proses menggambar atau modeling terlalu lama',
+                            'Komputer/laptop kurang kuat menjalankan software',
+                            'Software sering lambat atau mengalami crash',
+                            'Sulit membuat gambar sesuai standar',
+                            'Sulit mengatur layer, objek, atau komponen',
+                            'Kesulitan membuat anotasi/dimensi',
+                            'Kesulitan melakukan revisi desain',
+                            'Kesulitan mengintegrasikan pekerjaan dengan software lain (fragmentasi data)',
+                            'Masalah lisensi atau akses software',
+                            'Tidak mengalami kesulitan berarti'
+                        ],
+                        other: true,
+                        exclusive: 'Tidak mengalami kesulitan berarti'
+                    },
+                    {
+                        no: 11, id: 'q8', type: 'radio', required: true,
+                        text: 'Dari masalah-masalah di atas, mana yang paling sangat mengganggu proses belajarmu/kerjamu?',
+                        hint: 'Pilihan menyesuaikan jawaban nomor 10',
+                        dynamicFrom: 'q7', other: true
+                    },
+                    {
+                        no: 12, id: 'q9', type: 'radio', required: true,
+                        text: 'Seberapa sering masalah utama tersebut terjadi?',
+                        options: ['Hampir setiap kali menggunakan CAD', 'Cukup sering', 'Kadang-kadang', 'Jarang', 'Sangat jarang / tidak pernah']
+                    },
+                    {
+                        no: 13, id: 'q10', type: 'radio', required: true,
+                        text: 'Apa dampak masalah tersebut terhadap tugas atau pekerjaanmu?',
+                        options: ['Pengerjaan menjadi lebih lama', 'Harus mengulang pekerjaan', 'Mengurangi waktu untuk tugas lainnya', 'Membutuhkan bantuan orang lain', 'Hasil pekerjaan menjadi kurang optimal', 'Tidak terlalu berdampak'],
+                        other: true
+                    }
+                ]
+            },
+            {
+                id: 'bagian3',
+                nav: 'Case Discovery',
+                title: 'Bagian 3 — Case Discovery',
+                desc: 'Menggali pengalaman riil dari masalah masa lalu',
+                questions: [
+                    {
+                        no: 14, id: 'q11', type: 'radio', required: true,
+                        text: 'Kapan terakhir kali kamu mengalami kesulitan saat menggunakan CAD?',
+                        hint: 'Jika memilih "Tidak pernah mengalami masalah", kamu akan langsung menuju Bagian 5',
+                        options: ['Hari ini', 'Dalam 1 minggu terakhir', 'Dalam 1 bulan terakhir', '1–3 bulan lalu', 'Lebih dari 3 bulan lalu', 'Tidak pernah mengalami masalah']
+                    },
+                    {
+                        no: 15, id: 'q12', type: 'radio', required: true,
+                        text: 'Saat itu, kamu sedang mengerjakan apa?',
+                        options: ['Gambar denah/tampak/potongan', 'Modeling 3D', 'Gambar teknik', 'Desain rumah/bangunan', 'Desain mekanikal', 'Desain elektrikal', 'Tugas/praktik lainnya'], other: true
+                    },
+                    {
+                        no: 16, id: 'q13', type: 'textarea', required: true,
+                        text: 'Pada pengalaman tersebut, bagian mana yang paling memakan waktu atau paling sulit?',
+                        hint: 'Tuliskan jawabanmu secara deskriptif'
+                    }
+                ]
+            },
+            {
+                id: 'bagian4',
+                nav: 'Current Solution',
+                title: 'Bagian 4 — Current Solution',
+                desc: 'Melihat bagaimana pengguna mengatasi masalah saat ini',
+                questions: [
+                    {
+                        no: 17, id: 'q14', type: 'checkbox', required: true,
+                        text: 'Ketika mengalami kesulitan menggunakan CAD, apa yang biasanya kamu lakukan?',
+                        hint: 'Boleh pilih lebih dari satu',
+                        options: [
+                            'Mencari tutorial di YouTube',
+                            'Mencari tutorial/artikel melalui Google',
+                            'Bertanya kepada guru/dosen',
+                            'Bertanya kepada teman',
+                            'Menggunakan AI seperti ChatGPT/Gemini',
+                            'Mencari software alternatif',
+                            'Menggunakan fitur atau cara lain di software yang sama',
+                            'Membiarkan masalah tersebut dan mengerjakannya secara manual',
+                            'Tidak melakukan apa-apa'
+                        ], other: true
+                    },
+                    {
+                        no: 18, id: 'q15', type: 'radio', required: true,
+                        text: 'Seberapa puas kamu dengan cara yang kamu gunakan saat ini untuk mengatasi masalah tersebut?',
+                        options: ['Sangat puas', 'Puas', 'Cukup', 'Tidak puas', 'Sangat tidak puas']
+                    },
+                    {
+                        no: 19, id: 'q16', type: 'checkbox', required: true,
+                        text: 'Apa kekurangan terbesar dari cara yang kamu gunakan saat ini?',
+                        hint: 'Boleh pilih lebih dari satu',
+                        options: ['Membutuhkan waktu terlalu lama', 'Jawabannya tidak selalu sesuai kebutuhan', 'Sulit menemukan tutorial yang tepat', 'Harus meminta bantuan orang lain', 'Membutuhkan software/perangkat tambahan', 'Hasilnya tidak selalu akurat', 'Sebenarnya sudah cukup dan tidak ada kekurangan berarti'], other: true
+                    }
+                ]
+            },
+            {
+                id: 'bagian5',
+                nav: 'Lisensi & Keamanan',
+                title: 'Bagian 5 — Lisensi & Keamanan',
+                desc: 'Menganalisis ketergantungan pada software tidak resmi',
+                questions: [
+                    {
+                        no: 20, id: 'q17', type: 'radio', required: true,
+                        text: 'Versi software CAD yang paling sering kamu gunakan saat ini berasal dari mana?',
+                        options: ['Lisensi resmi/berbayar', 'Lisensi edukasi/student', 'Versi gratis/open-source', 'Versi trial/evaluation', 'Tidak tahu, diinstallkan orang lain', 'Bajakan / Crack / Patcher'], other: true
+                    },
+                    {
+                        no: 21, id: 'q18', type: 'checkbox', required: true,
+                        text: 'Jika kamu pernah/sedang menggunakan software CAD tanpa lisensi resmi (bajakan), apa alasan utamanya?',
+                        hint: 'Boleh pilih lebih dari satu',
+                        options: [
+                            'Harga lisensi komersial software konvensional terlalu mahal',
+                            'Tidak mengetahui adanya lisensi edukasi',
+                            'Sulit mendapatkan lisensi resmi',
+                            'Membutuhkan fitur yang hanya tersedia pada versi tertentu',
+                            'Mengikuti software yang digunakan teman/sekolah',
+                            'Sudah tersedia di komputer dari orang lain',
+                            'Hanya untuk mencoba/mempelajari software'
+                        ], other: true
+                    },
+                    {
+                        no: 22, id: 'q19', type: 'checkbox', required: true,
+                        text: 'Apa yang paling sering kamu rasakan atau pikirkan ketika menggunakan software CAD bajakan tersebut?',
+                        hint: 'Boleh pilih lebih dari satu',
+                        options: [
+                            'Merasa terpaksa karena tidak mampu membeli yang asli',
+                            'Sering khawatir perangkat rusak atau tugas hilang mendadak karena bug/crash',
+                            'Merasa bersalah karena melanggar hak cipta',
+                            'Merasa biasa saja karena banyak teman yang juga memakai'
+                        ], other: true
+                    },
+                    {
+                        no: 23, id: 'q20', type: 'radio', required: true,
+                        text: 'Apakah kamu mengetahui bahwa menggunakan file bajakan membawa risiko keamanan (virus/malware), melanggar undang-undang dan membatasi akses ke fitur pembaruan resmi?',
+                        options: ['Tahu dan khawatir', 'Tahu, tapi terpaksa mengabaikannya', 'Tidak tahu sama sekali']
+                    }
+                ]
+            },
+            {
+                id: 'bagian6',
+                nav: 'Artificial Intelligence',
+                title: 'Bagian 6 — Artificial Intelligence (AI)',
+                desc: 'Validasi adaptasi teknologi',
+                questions: [
+                    {
+                        no: 24, id: 'q21', type: 'radio', required: true,
+                        text: 'Seberapa sering kamu menggunakan AI untuk membantu mengerjakan tugas atau pekerjaan CAD?',
+                        options: ['Tidak pernah', 'Jarang', 'Kadang-kadang', 'Sering', 'Hampir selalu']
+                    },
+                    {
+                        no: 25, id: 'q22', type: 'checkbox', required: true,
+                        text: 'Jika pernah menggunakan AI, biasanya AI digunakan untuk apa?',
+                        hint: 'Boleh pilih lebih dari satu',
+                        options: [
+                            'Mempelajari cara menggunakan fitur CAD',
+                            'Mencari solusi ketika mengalami error',
+                            'Mencari ide desain',
+                            'Membantu membuat atau memahami perintah/script',
+                            'Membantu dokumentasi/anotasi',
+                            'Membantu pekerjaan lainnya',
+                            'Belum pernah menggunakan AI untuk CAD'
+                        ], other: true,
+                        exclusive: 'Belum pernah menggunakan AI untuk CAD'
+                    }
+                ]
+            },
+            {
+                id: 'bagian7',
+                nav: 'Product Discovery',
+                title: 'Bagian 7 — Product Discovery',
+                desc: 'Validasi ketertarikan pada solusi',
+                productIntro: {
+                    badge: 'Bagian 7 — Product Discovery',
+                    title: 'Mengenal NusantaraCAD',
+                    subtitle: 'Bacalah deskripsi produk berikut dengan saksama sebelum melanjutkan ke pertanyaan.',
+                    name: 'NusantaraCAD',
+                    paragraphs: [
+                        'NusantaraCAD adalah aplikasi menggambar dan mendesain bangunan atau mesin yang mudah digunakan langsung dari komputer, laptop maupun browser internet, tanpa perlu beban yang berat.',
+                        'Berbeda dengan software desain biasa yang mahal dan rumit, NusantaraCAD hadir secara legal dan gratis untuk pelajar, serta dilengkapi asisten kecerdasan buatan (AI) yang bisa membantu membuat gambar teknik otomatis hanya lewat perintah teks sederhana.'
+                    ],
+                    features: ['AI Text-to-CAD', 'Berbasis Browser', 'Format .NUSCAD Terpadu', 'Gratis untuk Pelajar']
+                },
+                questions: [
+                    {
+                        no: 26, id: 'q23', type: 'radio', required: true,
+                        text: 'Berdasarkan konsep tersebut, seberapa relevan NusantaraCAD dengan kebutuhanmu saat menggunakan CAD?',
+                        options: ['Sangat relevan', 'Relevan', 'Cukup relevan', 'Kurang relevan', 'Tidak relevan']
+                    },
+                    {
+                        no: 27, id: 'q24', type: 'checkbox', required: true,
+                        text: 'Fitur/konsep mana yang paling berpotensi membantu pekerjaanmu?',
+                        hint: 'Pilih lebih dari 1',
+                        options: [
+                            'Generasi dan modifikasi desain otomatis melalui perintah AI (Text-to-CAD)',
+                            'Akses instan melalui Web Browser tanpa instalasi rumit',
+                            'Satu format file (.NUSCAD) yang menyimpan data arsitektur, mekanikal, dan elektrikal sekaligus',
+                            'Asisten otomatisasi drafting dan pemeriksaan standar benturan (clash detection)',
+                            'Penawaran perangkat lunak legal secara gratis untuk sektor edukasi/pelajar'
+                        ], other: true
+                    },
+                    {
+                        no: 28, id: 'q25', type: 'checkbox', required: true,
+                        text: 'Apa yang paling membuatmu ragu untuk menggunakan NusantaraCAD?',
+                        hint: 'Boleh pilih lebih dari satu',
+                        options: [
+                            'Belum yakin kualitas/akurasi hasil AI',
+                            'Khawatir sulit dipelajari',
+                            'Khawatir fitur tidak selengkap software CAD yang sudah digunakan',
+                            'Khawatir masalah kompatibilitas file dengan software lain',
+                            'Khawatir performanya lambat',
+                            'Lebih nyaman menggunakan software yang sudah dikenal',
+                            'Khawatir soal keamanan/privasi data',
+                            'Tidak memiliki kebutuhan terhadap produk tersebut',
+                            'Tidak ada kekhawatiran khusus'
+                        ], other: true
+                    }
+                ]
+            },
+            {
+                id: 'bagian8',
+                nav: 'Willingness to Pay',
+                title: 'Bagian 8 — Willingness to Pay',
+                desc: 'Validasi nilai komersial dari solusi',
+                questions: [
+                    {
+                        no: 29, id: 'q26', type: 'radio', required: true,
+                        text: 'Jika NusantaraCAD terbukti dapat membantu mengurangi waktu atau kesulitan dalam pekerjaan CAD, seberapa besar kemungkinan kamu bersedia membayar lisensinya ketika nanti sudah lulus dan bekerja sebagai profesional?',
+                        options: ['Sangat mungkin', 'Mungkin', 'Masih mempertimbangkan', 'Kemungkinan kecil', 'Tidak bersedia membayar']
+                    },
+                    {
+                        no: 30, id: 'q27', type: 'radio', required: true,
+                        text: 'Berapa biaya langganan bulanan yang menurutmu masih masuk akal untuk software CAD terintegrasi AI yang akan kamu gunakan untuk pekerjaan profesional?',
+                        options: [
+                            '< Rp50.000/bulan',
+                            'Rp50.000 – Rp100.000/bulan',
+                            'Rp100.001 – Rp250.000/bulan',
+                            'Rp250.001 – Rp500.000/bulan',
+                            'Rp500.001 – Rp1.000.000/bulan',
+                            '> Rp1.000.000/bulan',
+                            'Saya tidak bersedia membayar langganan bulanan',
+                            'Tidak tahu/belum bisa memperkirakan'
+                        ]
+                    },
+                    {
+                        no: 31, id: 'q28', type: 'textarea', required: true,
+                        text: 'Apa alasan utama kamu memilih rentang harga tersebut?',
+                        hint: 'Tuliskan alasanmu singkat'
+                    }
+                ]
             }
-            list.push({ type: 'question', key: 'q-' + q.id, question: q, section: sec });
-        });
-    });
-    list.push({ type: 'done', key: 'done' });
-    return list;
-}
+        ];
 
-function getQuestionScreensCount() { return screens.filter(s => s.type === 'question').length; }
-function getCurrentQuestionNumber() { return screens.slice(0, currentIndex + 1).filter(s => s.type === 'question').length; }
+        const QMAP = {};
+        SURVEY.forEach(sec => sec.questions.forEach(q => { QMAP[q.id] = q; }));
 
-function getOptions(q) {
-    if (q.dynamicFrom) {
-        const src = state[q.dynamicFrom];
-        return Array.isArray(src) ? src.slice() : [];
-    }
-    return (q.options || []).slice();
-}
+        const state = {};
+        let screens = [];
+        let currentIndex = 0;
+        let focusTarget = null;
+        let autoAdvanceTimer = null;
+        let submitting = false;
+        let hasSubmitted = false;
 
-function otherOptHTML(q, checked, inputType) {
-    const txt = state[q.id + '__other'] || '';
-    return `<div class="opt opt-other${checked ? ' checked' : ''}">
+        function escapeHtml(s) {
+            return String(s === undefined || s === null ? '' : s).replace(/[&<>"']/g, c => (
+                { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+            ));
+        }
+        const escapeAttr = escapeHtml;
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            clearTimeout(showToast._t);
+            showToast._t = setTimeout(() => t.classList.remove('show'), 2600);
+        }
+
+        function clearAutoAdvance() {
+            if (autoAdvanceTimer) { clearTimeout(autoAdvanceTimer); autoAdvanceTimer = null; }
+        }
+
+        function isQuestionVisible(q) {
+            if (q.id === 'q8' || q.id === 'q9' || q.id === 'q10') {
+                const v = state.q7;
+                if (Array.isArray(v) && v.length === 1 && v[0] === 'Tidak mengalami kesulitan berarti') return false;
+                return true;
+            }
+            if (q.id === 'q14' || q.id === 'q15' || q.id === 'q16') {
+                return state.q11 !== 'Tidak pernah mengalami masalah';
+            }
+            return true;
+        }
+
+        function buildScreens() {
+            const list = [{ type: 'welcome', key: 'welcome' }];
+            let productIntroAdded = false;
+
+            SURVEY.forEach(sec => {
+                sec.questions.forEach(q => {
+                    if (!isQuestionVisible(q)) return;
+                    if (sec.productIntro && !productIntroAdded) {
+                        list.push({ type: 'product-intro', key: 'product-intro-' + sec.id, section: sec, intro: sec.productIntro });
+                        productIntroAdded = true;
+                    }
+                    list.push({ type: 'question', key: 'q-' + q.id, question: q, section: sec });
+                });
+            });
+            list.push({ type: 'done', key: 'done' });
+            return list;
+        }
+
+        function getQuestionScreensCount() { return screens.filter(s => s.type === 'question').length; }
+        function getCurrentQuestionNumber() { return screens.slice(0, currentIndex + 1).filter(s => s.type === 'question').length; }
+
+        function getOptions(q) {
+            if (q.dynamicFrom) {
+                const src = state[q.dynamicFrom];
+                return Array.isArray(src) ? src.slice() : [];
+            }
+            return (q.options || []).slice();
+        }
+
+        function otherOptHTML(q, checked, inputType) {
+            const txt = state[q.id + '__other'] || '';
+            return `<div class="opt opt-other${checked ? ' checked' : ''}">
         <label class="opt-label">
             <input type="${inputType}" name="${q.id}" value="__other__" data-qid="${q.id}"${checked ? ' checked' : ''}>
             <span>Lainnya:</span>
@@ -790,58 +1583,58 @@ function otherOptHTML(q, checked, inputType) {
         <input type="text" class="other-input" data-qid="${q.id}" value="${escapeAttr(txt)}"
                placeholder="Tulis jawabanmu..."${checked ? '' : ' disabled'}>
     </div>`;
-}
+        }
 
-function renderQuestionBody(q) {
-    const val = state[q.id];
-    const inputType = q.type === 'radio' ? 'radio' : 'checkbox';
+        function renderQuestionBody(q) {
+            const val = state[q.id];
+            const inputType = q.type === 'radio' ? 'radio' : 'checkbox';
 
-    if (q.type === 'textarea') {
-        return `<textarea class="q-textarea" data-qid="${q.id}" rows="4"
+            if (q.type === 'textarea') {
+                return `<textarea class="q-textarea" data-qid="${q.id}" rows="4"
             placeholder="Tulis jawabanmu di sini...">${escapeHtml(state[q.id] || '')}</textarea>`;
-    }
-    if (q.type === 'text') {
-        return `<input type="text" class="q-text-input" data-qid="${q.id}"
+            }
+            if (q.type === 'text') {
+                return `<input type="text" class="q-text-input" data-qid="${q.id}"
             value="${escapeAttr(state[q.id] || '')}"
             placeholder="${escapeAttr(q.placeholder || 'Tulis jawabanmu...')}">`;
-    }
+            }
 
-    const baseOptions = getOptions(q);
-    if (baseOptions.length === 0 && q.dynamicFrom) {
-        const srcQ = QMAP[q.dynamicFrom];
-        return `<div class="empty-note">Belum ada pilihan yang bisa ditampilkan. Jawab pertanyaan nomor ${srcQ ? srcQ.no : ''} terlebih dahulu.</div>`;
-    }
+            const baseOptions = getOptions(q);
+            if (baseOptions.length === 0 && q.dynamicFrom) {
+                const srcQ = QMAP[q.dynamicFrom];
+                return `<div class="empty-note">Belum ada pilihan yang bisa ditampilkan. Jawab pertanyaan nomor ${srcQ ? srcQ.no : ''} terlebih dahulu.</div>`;
+            }
 
-    const parts = [];
-    baseOptions.forEach(opt => {
-        const checked = q.type === 'radio' ? val === opt : (Array.isArray(val) && val.includes(opt));
-        if (opt === '__other__') parts.push(otherOptHTML(q, checked, inputType));
-        else parts.push(`<label class="opt${checked ? ' checked' : ''}">
+            const parts = [];
+            baseOptions.forEach(opt => {
+                const checked = q.type === 'radio' ? val === opt : (Array.isArray(val) && val.includes(opt));
+                if (opt === '__other__') parts.push(otherOptHTML(q, checked, inputType));
+                else parts.push(`<label class="opt${checked ? ' checked' : ''}">
             <input type="${inputType}" name="${q.id}" value="${escapeAttr(opt)}" data-qid="${q.id}"${checked ? ' checked' : ''}>
             <span>${escapeHtml(opt)}</span>
         </label>`);
-    });
-    if (q.other && !baseOptions.includes('__other__')) {
-        const checked = q.type === 'radio' ? val === '__other__' : (Array.isArray(val) && val.includes('__other__'));
-        parts.push(otherOptHTML(q, checked, inputType));
-    }
-    return parts.join('');
-}
+            });
+            if (q.other && !baseOptions.includes('__other__')) {
+                const checked = q.type === 'radio' ? val === '__other__' : (Array.isArray(val) && val.includes('__other__'));
+                parts.push(otherOptHTML(q, checked, inputType));
+            }
+            return parts.join('');
+        }
 
-function renderQuestionScreen(screen) {
-    const q = screen.question;
-    const sec = screen.section;
-    const totalQ = getQuestionScreensCount();
-    const curQ = getCurrentQuestionNumber();
+        function renderQuestionScreen(screen) {
+            const q = screen.question;
+            const sec = screen.section;
+            const totalQ = getQuestionScreensCount();
+            const curQ = getCurrentQuestionNumber();
 
-    let errMsg;
-    if (q.type === 'textarea' || q.type === 'text') errMsg = 'Jawaban ini wajib diisi.';
-    else if (q.other) errMsg = 'Pertanyaan ini wajib dijawab, termasuk kolom "Lainnya" bila dipilih.';
-    else errMsg = 'Pertanyaan ini wajib dijawab.';
+            let errMsg;
+            if (q.type === 'textarea' || q.type === 'text') errMsg = 'Jawaban ini wajib diisi.';
+            else if (q.other) errMsg = 'Pertanyaan ini wajib dijawab, termasuk kolom "Lainnya" bila dipilih.';
+            else errMsg = 'Pertanyaan ini wajib dijawab.';
 
-    const isLast = currentIndex === screens.length - 2;
+            const isLast = currentIndex === screens.length - 2;
 
-    return `<div class="screen-inner">
+            return `<div class="screen-inner">
         <div class="screen-context">
             <span>${escapeHtml(sec.title)}</span>
             <span class="context-progress">Pertanyaan ${curQ} dari ${totalQ}</span>
@@ -868,11 +1661,11 @@ function renderQuestionScreen(screen) {
             Tekan <span class="kbd">Enter</span> untuk lanjut &middot; <span class="kbd">Alt</span> + <span class="kbd">&#8592;</span> <span class="kbd">&#8594;</span> untuk navigasi
         </div>
     </div>`;
-}
+        }
 
-function renderWelcomeScreen() {
-    const totalQ = screens.filter(s => s.type === 'question').length;
-    return `<div class="screen-inner">
+        function renderWelcomeScreen() {
+            const totalQ = screens.filter(s => s.type === 'question').length;
+            return `<div class="screen-inner">
         <div class="welcome-screen">
             <div class="welcome-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -898,14 +1691,14 @@ function renderWelcomeScreen() {
             </button>
         </div>
     </div>`;
-}
+        }
 
-function renderProductIntroScreen(screen) {
-    const p = screen.intro;
-    const features = p.features.map(f => `<div class="pi-feat">${escapeHtml(f)}</div>`).join('');
-    const paragraphs = p.paragraphs.map(t => `<p>${escapeHtml(t)}</p>`).join('');
+        function renderProductIntroScreen(screen) {
+            const p = screen.intro;
+            const features = p.features.map(f => `<div class="pi-feat">${escapeHtml(f)}</div>`).join('');
+            const paragraphs = p.paragraphs.map(t => `<p>${escapeHtml(t)}</p>`).join('');
 
-    return `<div class="screen-inner">
+            return `<div class="screen-inner">
         <div class="product-intro-screen">
             <div class="pi-badge">${escapeHtml(p.badge)}</div>
             <h2 class="pi-title">${escapeHtml(p.title)}</h2>
@@ -931,47 +1724,47 @@ function renderProductIntroScreen(screen) {
             <button class="btn btn-ghost" type="button" onclick="prevScreen()">&#8592; Sebelumnya</button>
         </div>
     </div>`;
-}
+        }
 
-function formatAnswer(q) {
-    const v = state[q.id];
-    const otherTxt = (state[q.id + '__other'] || '').trim();
+        function formatAnswer(q) {
+            const v = state[q.id];
+            const otherTxt = (state[q.id + '__other'] || '').trim();
 
-    if (q.type === 'textarea') return v ? escapeHtml(v).replace(/\n/g, '<br>') : '<span class="muted">—</span>';
-    if (q.type === 'text') return v ? escapeHtml(v) : '<span class="muted">—</span>';
-    if (q.type === 'radio') {
-        if (!v) return '<span class="muted">—</span>';
-        return escapeHtml(v === '__other__' ? ('Lainnya: ' + (otherTxt || '-')) : v);
-    }
-    if (q.type === 'checkbox') {
-        if (!Array.isArray(v) || v.length === 0) return '<span class="muted">—</span>';
-        return v.map(x => escapeHtml(x === '__other__' ? ('Lainnya: ' + (otherTxt || '-')) : x)).join('<br>');
-    }
-    return '<span class="muted">—</span>';
-}
+            if (q.type === 'textarea') return v ? escapeHtml(v).replace(/\n/g, '<br>') : '<span class="muted">—</span>';
+            if (q.type === 'text') return v ? escapeHtml(v) : '<span class="muted">—</span>';
+            if (q.type === 'radio') {
+                if (!v) return '<span class="muted">—</span>';
+                return escapeHtml(v === '__other__' ? ('Lainnya: ' + (otherTxt || '-')) : v);
+            }
+            if (q.type === 'checkbox') {
+                if (!Array.isArray(v) || v.length === 0) return '<span class="muted">—</span>';
+                return v.map(x => escapeHtml(x === '__other__' ? ('Lainnya: ' + (otherTxt || '-')) : x)).join('<br>');
+            }
+            return '<span class="muted">—</span>';
+        }
 
-function renderDoneScreen() {
-    let summaryHTML = '';
-    SURVEY.forEach(sec => {
-        const qs = sec.questions.filter(isQuestionVisible);
-        if (qs.length === 0) return;
-        summaryHTML += `<div class="summary-block">
+        function renderDoneScreen() {
+            let summaryHTML = '';
+            SURVEY.forEach(sec => {
+                const qs = sec.questions.filter(isQuestionVisible);
+                if (qs.length === 0) return;
+                summaryHTML += `<div class="summary-block">
             <div class="summary-head">${escapeHtml(sec.title)}</div>
             <div class="summary-body">`;
-        qs.forEach(q => {
-            summaryHTML += `<div class="summary-item">
+                qs.forEach(q => {
+                    summaryHTML += `<div class="summary-item">
                 <div class="si-q">${q.no}. ${escapeHtml(q.text)}</div>
                 <div class="si-a">${formatAnswer(q)}</div>
             </div>`;
-        });
-        summaryHTML += `</div></div>`;
-    });
+                });
+                summaryHTML += `</div></div>`;
+            });
 
-    const savedMsg = hasSubmitted
-        ? 'Jawabanmu sudah tersimpan. Terima kasih atas partisipasimu!'
-        : 'Ringkasan jawabanmu ada di bawah. Unduh sebagai JSON jika diperlukan.';
+            const savedMsg = hasSubmitted
+                ? 'Jawabanmu sudah tersimpan. Terima kasih atas partisipasimu!'
+                : 'Ringkasan jawabanmu ada di bawah. Unduh sebagai JSON jika diperlukan.';
 
-    return `<div class="screen-inner">
+            return `<div class="screen-inner">
         <div class="done-screen">
             <div class="check-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
@@ -987,436 +1780,437 @@ function renderDoneScreen() {
             <div class="summary">${summaryHTML}</div>
         </div>
     </div>`;
-}
-
-const screenArea = document.getElementById('screenArea');
-
-function renderScreen() {
-    if (currentIndex < 0) currentIndex = 0;
-    if (currentIndex >= screens.length) currentIndex = screens.length - 1;
-
-    const screen = screens[currentIndex];
-    clearAutoAdvance();
-
-    const progressWrap = document.getElementById('progressWrap');
-    const sectionLabel = document.getElementById('currentSectionLabel');
-    const progressCount = document.getElementById('progressCount');
-    const progressBar = document.getElementById('progressBar');
-
-    if (screen.type === 'welcome' || screen.type === 'done') {
-        progressWrap.style.visibility = 'hidden';
-        progressWrap.style.height = '0';
-        progressWrap.style.padding = '0';
-        progressWrap.style.overflow = 'hidden';
-    } else {
-        progressWrap.style.visibility = 'visible';
-        progressWrap.style.height = '';
-        progressWrap.style.padding = '';
-        progressWrap.style.overflow = '';
-
-        if (screen.type === 'product-intro') sectionLabel.textContent = screen.intro.badge;
-        else if (screen.type === 'question') sectionLabel.textContent = screen.section.title;
-
-        const totalQ = getQuestionScreensCount();
-        const curQ = getCurrentQuestionNumber();
-        progressCount.textContent = 'Pertanyaan ' + curQ + ' dari ' + totalQ;
-        const pct = totalQ ? Math.round((curQ / totalQ) * 100) : 0;
-        progressBar.style.width = pct + '%';
-    }
-
-    let html = '';
-    if (screen.type === 'welcome') html = renderWelcomeScreen();
-    else if (screen.type === 'product-intro') html = renderProductIntroScreen(screen);
-    else if (screen.type === 'question') html = renderQuestionScreen(screen);
-    else if (screen.type === 'done') html = renderDoneScreen();
-
-    screenArea.innerHTML = html;
-
-    if (focusTarget) {
-        const el = screenArea.querySelector('.other-input[data-qid="' + focusTarget + '"]');
-        if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
-        focusTarget = null;
-    }
-
-    window.scrollTo({ top: 0, behavior: 'auto' });
-    updateSidebarActive();
-}
-
-function rebuildScreens() {
-    screens = buildScreens();
-    if (currentIndex >= screens.length) currentIndex = screens.length - 1;
-    if (currentIndex < 0) currentIndex = 0;
-}
-
-function syncCardInputs(qid) {
-    const q = QMAP[qid];
-    if (!q) return;
-    const card = document.getElementById('card-' + qid);
-    if (!card) return;
-
-    const val = state[qid];
-    const inputs = card.querySelectorAll('input[data-qid="' + qid + '"]');
-
-    inputs.forEach(inp => {
-        if (inp.type === 'text' && !inp.classList.contains('other-input')) return;
-        let checked;
-        if (q.type === 'radio') checked = (val === inp.value);
-        else checked = Array.isArray(val) && val.includes(inp.value);
-        inp.checked = checked;
-
-        const opt = inp.closest('.opt');
-        if (opt) opt.classList.toggle('checked', checked);
-
-        if (inp.value === '__other__') {
-            const otherInput = opt ? opt.querySelector('.other-input') : null;
-            if (otherInput) otherInput.disabled = !checked;
-        }
-    });
-}
-
-function updateProgressDisplay() {
-    const totalQ = getQuestionScreensCount();
-    const curQ = getCurrentQuestionNumber();
-    document.getElementById('progressCount').textContent = 'Pertanyaan ' + curQ + ' dari ' + totalQ;
-    const pct = totalQ ? Math.round((curQ / totalQ) * 100) : 0;
-    document.getElementById('progressBar').style.width = pct + '%';
-}
-
-function validateQuestion(q, showError) {
-    const okAnswer = isAnswered(q);
-    const okOther = !needsOtherText(q) || (state[q.id + '__other'] || '').trim() !== '';
-    const valid = okAnswer && okOther;
-    if (!valid && showError) {
-        const card = document.getElementById('card-' + q.id);
-        if (card) card.classList.add('invalid');
-        showToast('Jawaban belum lengkap. Mohon periksa kembali.');
-    }
-    return valid;
-}
-
-async function nextScreen() {
-    if (submitting) return;
-    clearAutoAdvance();
-    rebuildScreens();
-    const screen = screens[currentIndex];
-
-    if (screen && screen.type === 'question') {
-        if (!validateQuestion(screen.question, true)) return;
-
-        const hasMoreQuestions = screens.slice(currentIndex + 1).some(s => s.type === 'question');
-        if (!hasMoreQuestions) {
-            // Pertanyaan terakhir → simpan dulu ke Supabase
-            await submitAndFinish();
-            return;
-        }
-    }
-
-    if (currentIndex < screens.length - 1) {
-        currentIndex++;
-        rebuildScreens();
-        renderScreen();
-    }
-}
-
-async function submitAndFinish() {
-    if (hasSubmitted) {
-        currentIndex = screens.length - 1;
-        renderScreen();
-        return;
-    }
-
-    const btn = document.getElementById('mainActionBtn');
-    const originalText = btn ? btn.textContent : '';
-    submitting = true;
-    if (btn) { btn.disabled = true; btn.textContent = 'Menyimpan...'; }
-
-    try {
-        const answers = collectAnswers();
-        const payload = {
-            nama: (state.nama || '').trim(),
-            nohp: ((state.nohp || '').trim()) || null,
-            email: ((state.email || '').trim()) || null,
-            answers: answers
-        };
-
-        if (!supabaseClient) {
-            console.warn('[Supabase] Belum dikonfigurasi. Payload yang akan dikirim:', payload);
-            showToast('Supabase belum dikonfigurasi. Jawaban tidak tersimpan di server.');
-        } else {
-            const { error } = await supabaseClient
-                .from('survey_responses')
-                .insert(payload);
-            if (error) throw error;
-            showToast('Jawaban berhasil disimpan.');
         }
 
-        hasSubmitted = true;
-        currentIndex = screens.length - 1;
-        rebuildScreens();
-        renderScreen();
-    } catch (err) {
-        console.error('[Supabase] Gagal menyimpan:', err);
-        showToast('Gagal menyimpan jawaban. Coba lagi.');
-        if (btn) { btn.disabled = false; btn.textContent = originalText; }
-    } finally {
-        submitting = false;
-    }
-}
+        const screenArea = document.getElementById('screenArea');
 
-function prevScreen() {
-    if (submitting) return;
-    clearAutoAdvance();
-    if (currentIndex > 0) {
-        currentIndex--;
-        rebuildScreens();
-        renderScreen();
-    }
-}
+        function renderScreen() {
+            if (currentIndex < 0) currentIndex = 0;
+            if (currentIndex >= screens.length) currentIndex = screens.length - 1;
 
-function isAnswered(q) {
-    const v = state[q.id];
-    if (q.type === 'radio') return typeof v === 'string' && v !== '';
-    if (q.type === 'checkbox') return Array.isArray(v) && v.length > 0;
-    if (q.type === 'textarea') return typeof v === 'string' && v.trim() !== '';
-    if (q.type === 'text') {
-        if (!q.required) return true;
-        return typeof v === 'string' && v.trim() !== '';
-    }
-    return false;
-}
+            const screen = screens[currentIndex];
+            clearAutoAdvance();
 
-function needsOtherText(q) {
-    const v = state[q.id];
-    if (q.type === 'radio') return v === '__other__';
-    if (q.type === 'checkbox') return Array.isArray(v) && v.includes('__other__');
-    return false;
-}
+            const progressWrap = document.getElementById('progressWrap');
+            const sectionLabel = document.getElementById('currentSectionLabel');
+            const progressCount = document.getElementById('progressCount');
+            const progressBar = document.getElementById('progressBar');
 
-screenArea.addEventListener('change', function (e) {
-    const t = e.target;
-    if (!t.matches('input[type="radio"][data-qid], input[type="checkbox"][data-qid]')) return;
+            if (screen.type === 'welcome' || screen.type === 'done') {
+                progressWrap.style.visibility = 'hidden';
+                progressWrap.style.height = '0';
+                progressWrap.style.padding = '0';
+                progressWrap.style.overflow = 'hidden';
+            } else {
+                progressWrap.style.visibility = 'visible';
+                progressWrap.style.height = '';
+                progressWrap.style.padding = '';
+                progressWrap.style.overflow = '';
 
-    const qid = t.dataset.qid;
-    const q = QMAP[qid];
-    const val = t.value;
-    clearAutoAdvance();
+                if (screen.type === 'product-intro') sectionLabel.textContent = screen.intro.badge;
+                else if (screen.type === 'question') sectionLabel.textContent = screen.section.title;
 
-    if (q.type === 'radio') {
-        state[qid] = val;
-        if (val === '__other__') focusTarget = qid;
-    } else {
-        let arr = Array.isArray(state[qid]) ? state[qid].slice() : [];
-        if (t.checked) {
-            if (q.exclusive && val === q.exclusive) arr = [val];
-            else {
-                if (q.exclusive) arr = arr.filter(v => v !== q.exclusive);
-                if (q.maxSelect && !arr.includes(val) && arr.length >= q.maxSelect) {
-                    t.checked = false;
-                    showToast('Maksimal ' + q.maxSelect + ' pilihan untuk pertanyaan ini.');
-                    syncCardInputs(qid);
+                const totalQ = getQuestionScreensCount();
+                const curQ = getCurrentQuestionNumber();
+                progressCount.textContent = 'Pertanyaan ' + curQ + ' dari ' + totalQ;
+                const pct = totalQ ? Math.round((curQ / totalQ) * 100) : 0;
+                progressBar.style.width = pct + '%';
+            }
+
+            let html = '';
+            if (screen.type === 'welcome') html = renderWelcomeScreen();
+            else if (screen.type === 'product-intro') html = renderProductIntroScreen(screen);
+            else if (screen.type === 'question') html = renderQuestionScreen(screen);
+            else if (screen.type === 'done') html = renderDoneScreen();
+
+            screenArea.innerHTML = html;
+
+            if (focusTarget) {
+                const el = screenArea.querySelector('.other-input[data-qid="' + focusTarget + '"]');
+                if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
+                focusTarget = null;
+            }
+
+            window.scrollTo({ top: 0, behavior: 'auto' });
+            updateSidebarActive();
+        }
+
+        function rebuildScreens() {
+            screens = buildScreens();
+            if (currentIndex >= screens.length) currentIndex = screens.length - 1;
+            if (currentIndex < 0) currentIndex = 0;
+        }
+
+        function syncCardInputs(qid) {
+            const q = QMAP[qid];
+            if (!q) return;
+            const card = document.getElementById('card-' + qid);
+            if (!card) return;
+
+            const val = state[qid];
+            const inputs = card.querySelectorAll('input[data-qid="' + qid + '"]');
+
+            inputs.forEach(inp => {
+                if (inp.type === 'text' && !inp.classList.contains('other-input')) return;
+                let checked;
+                if (q.type === 'radio') checked = (val === inp.value);
+                else checked = Array.isArray(val) && val.includes(inp.value);
+                inp.checked = checked;
+
+                const opt = inp.closest('.opt');
+                if (opt) opt.classList.toggle('checked', checked);
+
+                if (inp.value === '__other__') {
+                    const otherInput = opt ? opt.querySelector('.other-input') : null;
+                    if (otherInput) otherInput.disabled = !checked;
+                }
+            });
+        }
+
+        function updateProgressDisplay() {
+            const totalQ = getQuestionScreensCount();
+            const curQ = getCurrentQuestionNumber();
+            document.getElementById('progressCount').textContent = 'Pertanyaan ' + curQ + ' dari ' + totalQ;
+            const pct = totalQ ? Math.round((curQ / totalQ) * 100) : 0;
+            document.getElementById('progressBar').style.width = pct + '%';
+        }
+
+        function validateQuestion(q, showError) {
+            const okAnswer = isAnswered(q);
+            const okOther = !needsOtherText(q) || (state[q.id + '__other'] || '').trim() !== '';
+            const valid = okAnswer && okOther;
+            if (!valid && showError) {
+                const card = document.getElementById('card-' + q.id);
+                if (card) card.classList.add('invalid');
+                showToast('Jawaban belum lengkap. Mohon periksa kembali.');
+            }
+            return valid;
+        }
+
+        async function nextScreen() {
+            if (submitting) return;
+            clearAutoAdvance();
+            rebuildScreens();
+            const screen = screens[currentIndex];
+
+            if (screen && screen.type === 'question') {
+                if (!validateQuestion(screen.question, true)) return;
+
+                const hasMoreQuestions = screens.slice(currentIndex + 1).some(s => s.type === 'question');
+                if (!hasMoreQuestions) {
+                    // Pertanyaan terakhir → simpan dulu ke Supabase
+                    await submitAndFinish();
                     return;
                 }
-                if (!arr.includes(val)) arr.push(val);
             }
-        } else arr = arr.filter(v => v !== val);
-        state[qid] = arr;
-    }
 
-    const currentScreenKey = screens[currentIndex] ? screens[currentIndex].key : null;
-    rebuildScreens();
-    if (currentScreenKey) {
-        const idx = screens.findIndex(s => s.key === currentScreenKey);
-        if (idx >= 0 && idx !== currentIndex) currentIndex = idx;
-    }
+            if (currentIndex < screens.length - 1) {
+                currentIndex++;
+                rebuildScreens();
+                renderScreen();
+            }
+        }
 
-    syncCardInputs(qid);
-    const card = document.getElementById('card-' + qid);
-    if (card) card.classList.remove('invalid');
-    updateProgressDisplay();
+        async function submitAndFinish() {
+            if (hasSubmitted) {
+                currentIndex = screens.length - 1;
+                renderScreen();
+                return;
+            }
 
-    if (q.type === 'radio' && val !== '__other__') {
-        autoAdvanceTimer = setTimeout(() => {
-            autoAdvanceTimer = null;
-            nextScreen();
-        }, 320);
-    }
-});
+            const btn = document.getElementById('mainActionBtn');
+            const originalText = btn ? btn.textContent : '';
+            submitting = true;
+            if (btn) { btn.disabled = true; btn.textContent = 'Menyimpan...'; }
 
-screenArea.addEventListener('input', function (e) {
-    const t = e.target;
-    if (t.matches('.other-input')) {
-        state[t.dataset.qid + '__other'] = t.value;
-        const card = t.closest('.q-card');
-        if (card) card.classList.remove('invalid');
-    } else if (t.matches('textarea[data-qid]')) {
-        state[t.dataset.qid] = t.value;
-        const card = t.closest('.q-card');
-        if (card && t.value.trim() !== '') card.classList.remove('invalid');
-    } else if (t.matches('.q-text-input[data-qid]')) {
-        const q = QMAP[t.dataset.qid];
-        state[t.dataset.qid] = t.value;
-        const card = t.closest('.q-card');
-        if (card && (!q.required || t.value.trim() !== '')) card.classList.remove('invalid');
-    }
-});
+            try {
+                const answers = collectAnswers();
+                const payload = {
+                    nama: (state.nama || '').trim(),
+                    nohp: ((state.nohp || '').trim()) || null,
+                    email: ((state.email || '').trim()) || null,
+                    answers: answers
+                };
 
-document.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter') {
-        const t = e.target;
-        if (t.tagName === 'TEXTAREA') return;
-        if (t.tagName === 'BUTTON') return;
-        if (t.tagName === 'INPUT' && t.type === 'text') {
-            if (t.classList.contains('other-input') || t.classList.contains('q-text-input')) {
+                if (!supabaseClient) {
+                    console.warn('[Supabase] Belum dikonfigurasi. Payload yang akan dikirim:', payload);
+                    showToast('Supabase belum dikonfigurasi. Jawaban tidak tersimpan di server.');
+                } else {
+                    const { error } = await supabaseClient
+                        .from('survey_responses')
+                        .insert(payload);
+                    if (error) throw error;
+                    showToast('Jawaban berhasil disimpan.');
+                }
+
+                hasSubmitted = true;
+                currentIndex = screens.length - 1;
+                rebuildScreens();
+                renderScreen();
+            } catch (err) {
+                console.error('[Supabase] Gagal menyimpan:', err);
+                showToast('Gagal menyimpan jawaban. Coba lagi.');
+                if (btn) { btn.disabled = false; btn.textContent = originalText; }
+            } finally {
+                submitting = false;
+            }
+        }
+
+        function prevScreen() {
+            if (submitting) return;
+            clearAutoAdvance();
+            if (currentIndex > 0) {
+                currentIndex--;
+                rebuildScreens();
+                renderScreen();
+            }
+        }
+
+        function isAnswered(q) {
+            const v = state[q.id];
+            if (q.type === 'radio') return typeof v === 'string' && v !== '';
+            if (q.type === 'checkbox') return Array.isArray(v) && v.length > 0;
+            if (q.type === 'textarea') return typeof v === 'string' && v.trim() !== '';
+            if (q.type === 'text') {
+                if (!q.required) return true;
+                return typeof v === 'string' && v.trim() !== '';
+            }
+            return false;
+        }
+
+        function needsOtherText(q) {
+            const v = state[q.id];
+            if (q.type === 'radio') return v === '__other__';
+            if (q.type === 'checkbox') return Array.isArray(v) && v.includes('__other__');
+            return false;
+        }
+
+        screenArea.addEventListener('change', function (e) {
+            const t = e.target;
+            if (!t.matches('input[type="radio"][data-qid], input[type="checkbox"][data-qid]')) return;
+
+            const qid = t.dataset.qid;
+            const q = QMAP[qid];
+            const val = t.value;
+            clearAutoAdvance();
+
+            if (q.type === 'radio') {
+                state[qid] = val;
+                if (val === '__other__') focusTarget = qid;
+            } else {
+                let arr = Array.isArray(state[qid]) ? state[qid].slice() : [];
+                if (t.checked) {
+                    if (q.exclusive && val === q.exclusive) arr = [val];
+                    else {
+                        if (q.exclusive) arr = arr.filter(v => v !== q.exclusive);
+                        if (q.maxSelect && !arr.includes(val) && arr.length >= q.maxSelect) {
+                            t.checked = false;
+                            showToast('Maksimal ' + q.maxSelect + ' pilihan untuk pertanyaan ini.');
+                            syncCardInputs(qid);
+                            return;
+                        }
+                        if (!arr.includes(val)) arr.push(val);
+                    }
+                } else arr = arr.filter(v => v !== val);
+                state[qid] = arr;
+            }
+
+            const currentScreenKey = screens[currentIndex] ? screens[currentIndex].key : null;
+            rebuildScreens();
+            if (currentScreenKey) {
+                const idx = screens.findIndex(s => s.key === currentScreenKey);
+                if (idx >= 0 && idx !== currentIndex) currentIndex = idx;
+            }
+
+            syncCardInputs(qid);
+            const card = document.getElementById('card-' + qid);
+            if (card) card.classList.remove('invalid');
+            updateProgressDisplay();
+
+            if (q.type === 'radio' && val !== '__other__') {
+                autoAdvanceTimer = setTimeout(() => {
+                    autoAdvanceTimer = null;
+                    nextScreen();
+                }, 320);
+            }
+        });
+
+        screenArea.addEventListener('input', function (e) {
+            const t = e.target;
+            if (t.matches('.other-input')) {
+                state[t.dataset.qid + '__other'] = t.value;
+                const card = t.closest('.q-card');
+                if (card) card.classList.remove('invalid');
+            } else if (t.matches('textarea[data-qid]')) {
+                state[t.dataset.qid] = t.value;
+                const card = t.closest('.q-card');
+                if (card && t.value.trim() !== '') card.classList.remove('invalid');
+            } else if (t.matches('.q-text-input[data-qid]')) {
+                const q = QMAP[t.dataset.qid];
+                state[t.dataset.qid] = t.value;
+                const card = t.closest('.q-card');
+                if (card && (!q.required || t.value.trim() !== '')) card.classList.remove('invalid');
+            }
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                const t = e.target;
+                if (t.tagName === 'TEXTAREA') return;
+                if (t.tagName === 'BUTTON') return;
+                if (t.tagName === 'INPUT' && t.type === 'text') {
+                    if (t.classList.contains('other-input') || t.classList.contains('q-text-input')) {
+                        e.preventDefault();
+                        clearAutoAdvance();
+                        nextScreen();
+                    }
+                    return;
+                }
                 e.preventDefault();
                 clearAutoAdvance();
                 nextScreen();
+            } else if (e.key === 'ArrowRight' && e.altKey) {
+                e.preventDefault(); nextScreen();
+            } else if (e.key === 'ArrowLeft' && e.altKey) {
+                e.preventDefault(); prevScreen();
             }
-            return;
+        });
+
+        function buildSidebarNav() {
+            const nav = document.getElementById('sidebarNav');
+            nav.innerHTML = '';
+            SURVEY.forEach(sec => {
+                const a = document.createElement('a');
+                a.textContent = sec.nav;
+                a.dataset.target = sec.id;
+                a.href = 'javascript:void(0)';
+                a.addEventListener('click', () => {
+                    const idx = screens.findIndex(s =>
+                        (s.type === 'question' && s.section.id === sec.id) ||
+                        (s.type === 'product-intro' && s.section.id === sec.id)
+                    );
+                    if (idx === -1) { showToast('Bagian ini tidak tersedia berdasarkan jawabanmu.'); return; }
+                    currentIndex = idx;
+                    renderScreen();
+                    if (window.innerWidth <= 768 && !document.body.classList.contains('is-fullscreen')) closeSidebar();
+                });
+                nav.appendChild(a);
+            });
         }
-        e.preventDefault();
-        clearAutoAdvance();
-        nextScreen();
-    } else if (e.key === 'ArrowRight' && e.altKey) {
-        e.preventDefault(); nextScreen();
-    } else if (e.key === 'ArrowLeft' && e.altKey) {
-        e.preventDefault(); prevScreen();
-    }
-});
 
-function buildSidebarNav() {
-    const nav = document.getElementById('sidebarNav');
-    nav.innerHTML = '';
-    SURVEY.forEach(sec => {
-        const a = document.createElement('a');
-        a.textContent = sec.nav;
-        a.dataset.target = sec.id;
-        a.href = 'javascript:void(0)';
-        a.addEventListener('click', () => {
-            const idx = screens.findIndex(s =>
-                (s.type === 'question' && s.section.id === sec.id) ||
-                (s.type === 'product-intro' && s.section.id === sec.id)
-            );
-            if (idx === -1) { showToast('Bagian ini tidak tersedia berdasarkan jawabanmu.'); return; }
-            currentIndex = idx;
+        function updateSidebarActive() {
+            const screen = screens[currentIndex];
+            const currentSectionId = screen && (screen.section ? screen.section.id : null);
+            document.querySelectorAll('#sidebarNav a').forEach(a => {
+                a.classList.toggle('active', a.dataset.target === currentSectionId);
+            });
+        }
+
+        function collectAnswers() {
+            const data = {};
+            SURVEY.forEach(sec => {
+                sec.questions.forEach(q => {
+                    if (!isQuestionVisible(q)) return;
+                    const v = state[q.id];
+                    if (v === undefined || v === '' || (Array.isArray(v) && v.length === 0)) return;
+                    const otherTxt = (state[q.id + '__other'] || '').trim();
+                    if (Array.isArray(v)) data['Q' + q.no] = v.map(x => x === '__other__' ? ('Lainnya: ' + otherTxt) : x);
+                    else data['Q' + q.no] = v === '__other__' ? ('Lainnya: ' + otherTxt) : v;
+                });
+            });
+            return data;
+        }
+
+        function downloadJSON() {
+            const data = collectAnswers();
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'jawaban-kuesioner-nusantaracad.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('File jawaban berhasil diunduh.');
+        }
+
+        function resetForm() {
+            Object.keys(state).forEach(k => delete state[k]);
+            currentIndex = 0;
+            hasSubmitted = false;
+            rebuildScreens();
             renderScreen();
-            if (window.innerWidth <= 768 && !document.body.classList.contains('is-fullscreen')) closeSidebar();
+            showToast('Kuesioner telah direset.');
+        }
+
+        const sidebar = document.getElementById('sidebar');
+        const main = document.getElementById('main');
+        const footer = document.getElementById('footer');
+        const menuButton = document.getElementById('menuButton');
+
+        function openSidebar() {
+            sidebar.classList.remove('closed');
+            main.classList.remove('sidebar-closed');
+            footer.classList.remove('sidebar-closed');
+            menuButton.setAttribute('aria-expanded', 'true');
+            menuButton.setAttribute('aria-label', 'Tutup sidebar');
+        }
+        function closeSidebar() {
+            sidebar.classList.add('closed');
+            main.classList.add('sidebar-closed');
+            footer.classList.add('sidebar-closed');
+            menuButton.setAttribute('aria-expanded', 'false');
+            menuButton.setAttribute('aria-label', 'Buka sidebar');
+        }
+        menuButton.addEventListener('click', () => {
+            if (sidebar.classList.contains('closed')) openSidebar();
+            else closeSidebar();
         });
-        nav.appendChild(a);
-    });
-}
 
-function updateSidebarActive() {
-    const screen = screens[currentIndex];
-    const currentSectionId = screen && (screen.section ? screen.section.id : null);
-    document.querySelectorAll('#sidebarNav a').forEach(a => {
-        a.classList.toggle('active', a.dataset.target === currentSectionId);
-    });
-}
+        function requestFs() {
+            const el = document.documentElement;
+            const fn = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+            if (!fn) return;
+            try {
+                const result = fn.call(el);
+                if (result && typeof result.catch === 'function') result.catch(() => { });
+            } catch (err) { }
+        }
+        function exitFs() {
+            const fn = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+            if (!fn) return;
+            try {
+                const result = fn.call(document);
+                if (result && typeof result.catch === 'function') result.catch(() => { });
+            } catch (err) { }
+        }
+        function handleFsChange() {
+            const fs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
+            document.body.classList.toggle('is-fullscreen', fs);
+        }
+        document.addEventListener('fullscreenchange', handleFsChange);
+        document.addEventListener('webkitfullscreenchange', handleFsChange);
+        document.addEventListener('msfullscreenchange', handleFsChange);
+        document.getElementById('exitFsBtn').addEventListener('click', exitFs);
 
-function collectAnswers() {
-    const data = {};
-    SURVEY.forEach(sec => {
-        sec.questions.forEach(q => {
-            if (!isQuestionVisible(q)) return;
-            const v = state[q.id];
-            if (v === undefined || v === '' || (Array.isArray(v) && v.length === 0)) return;
-            const otherTxt = (state[q.id + '__other'] || '').trim();
-            if (Array.isArray(v)) data['Q' + q.no] = v.map(x => x === '__other__' ? ('Lainnya: ' + otherTxt) : x);
-            else data['Q' + q.no] = v === '__other__' ? ('Lainnya: ' + otherTxt) : v;
+        function startQuestionnaire() {
+            requestFs();
+            nextScreen();
+        }
+
+        window.addEventListener('load', function () {
+            if (window.innerWidth <= 768) closeSidebar();
+            buildSidebarNav();
+            rebuildScreens();
+            currentIndex = 0;
+            renderScreen();
+
+            if (!SUPABASE_CONFIGURED) {
+                console.warn('[Supabase] URL/ANON KEY belum diisi. Data tidak akan dikirim ke server.');
+            }
         });
-    });
-    return data;
-}
-
-function downloadJSON() {
-    const data = collectAnswers();
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'jawaban-kuesioner-nusantaracad.json';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    showToast('File jawaban berhasil diunduh.');
-}
-
-function resetForm() {
-    Object.keys(state).forEach(k => delete state[k]);
-    currentIndex = 0;
-    hasSubmitted = false;
-    rebuildScreens();
-    renderScreen();
-    showToast('Kuesioner telah direset.');
-}
-
-const sidebar = document.getElementById('sidebar');
-const main = document.getElementById('main');
-const footer = document.getElementById('footer');
-const menuButton = document.getElementById('menuButton');
-
-function openSidebar() {
-    sidebar.classList.remove('closed');
-    main.classList.remove('sidebar-closed');
-    footer.classList.remove('sidebar-closed');
-    menuButton.setAttribute('aria-expanded', 'true');
-    menuButton.setAttribute('aria-label', 'Tutup sidebar');
-}
-function closeSidebar() {
-    sidebar.classList.add('closed');
-    main.classList.add('sidebar-closed');
-    footer.classList.add('sidebar-closed');
-    menuButton.setAttribute('aria-expanded', 'false');
-    menuButton.setAttribute('aria-label', 'Buka sidebar');
-}
-menuButton.addEventListener('click', () => {
-    if (sidebar.classList.contains('closed')) openSidebar();
-    else closeSidebar();
-});
-
-function requestFs() {
-    const el = document.documentElement;
-    const fn = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
-    if (!fn) return;
-    try {
-        const result = fn.call(el);
-        if (result && typeof result.catch === 'function') result.catch(() => {});
-    } catch (err) {}
-}
-function exitFs() {
-    const fn = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
-    if (!fn) return;
-    try {
-        const result = fn.call(document);
-        if (result && typeof result.catch === 'function') result.catch(() => {});
-    } catch (err) {}
-}
-function handleFsChange() {
-    const fs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
-    document.body.classList.toggle('is-fullscreen', fs);
-}
-document.addEventListener('fullscreenchange', handleFsChange);
-document.addEventListener('webkitfullscreenchange', handleFsChange);
-document.addEventListener('msfullscreenchange', handleFsChange);
-document.getElementById('exitFsBtn').addEventListener('click', exitFs);
-
-function startQuestionnaire() {
-    requestFs();
-    nextScreen();
-}
-
-window.addEventListener('load', function () {
-    if (window.innerWidth <= 768) closeSidebar();
-    buildSidebarNav();
-    rebuildScreens();
-    currentIndex = 0;
-    renderScreen();
-
-    if (!SUPABASE_CONFIGURED) {
-        console.warn('[Supabase] URL/ANON KEY belum diisi. Data tidak akan dikirim ke server.');
-    }
-});
-</script>
+    </script>
 </body>
+
 </html>
