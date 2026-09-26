@@ -1064,11 +1064,11 @@ function renderConclusions() {
     const pill = (text, variant = '') => `<span class="highlight ${variant}">${escapeHtml(text)}</span>`;
     console.log('SOFTWARE:', software);
     el.innerHTML = `
-        <h2>📌 Kesimpulan & Rekomendasi</h2>
+        <h2>Kesimpulan & Rekomendasi</h2>
         <div class="subtitle">Dibuat otomatis dari ${N} responden · Diperbarui ${new Date().toLocaleString('id-ID')}</div>
 
         <div class="conclusion-section">
-            <h3>👥 Profil Responden</h3>
+            <h3>Profil Responden</h3>
             <ul>
                 <li><strong>Total responden:</strong> ${N} orang, tersebar di ${sekolahUnik} sekolah.</li>
                 <li><strong>Jenjang dominan:</strong> ${jenjang.top[0] ? pill(jenjang.top[0]) : '—'} (${pctStr(jenjang.top[1], jenjang.respondents)} responden).</li>
@@ -1079,7 +1079,7 @@ function renderConclusions() {
         </div>
 
         <div class="conclusion-section">
-            <h3>🔍 Problem Discovery — Validasi Masalah</h3>
+            <h3>Problem Discovery — Validasi Masalah</h3>
             <ul>
                 <li><strong>${pctStr(pernahKesulitan, N)} responden</strong> pernah mengalami kesulitan saat menggunakan CAD — <em>masalah nyata, bukan asumsi.</em></li>
                 <li><strong>Kesulitan terbesar:</strong> ${kesulitan.entries.slice(0,3).map(([k,v]) => pill(`${k} (${pctStr(v, kesulitan.respondents)})`)).join(' ')}.</li>
@@ -1089,7 +1089,7 @@ function renderConclusions() {
         </div>
 
         <div class="conclusion-section">
-            <h3>🧩 Current Solution — Solusi yang Digunakan Saat Ini</h3>
+            <h3>Current Solution — Solusi yang Digunakan Saat Ini</h3>
             <ul>
                 <li><strong>Cara mengatasi:</strong> ${caraAtasi.entries.slice(0,3).map(([k,v]) => pill(`${k} (${v})`)).join(' ')}.</li>
                 <li><strong>Tingkat kepuasan:</strong> hanya <strong>${pctStr(puasCount, N)}</strong> responden yang <span class="highlight success">puas</span> dengan cara saat ini → <em>ruang perbaikan sangat besar.</em></li>
@@ -1098,7 +1098,7 @@ function renderConclusions() {
         </div>
 
         <div class="conclusion-section">
-            <h3>⚖️ Lisensi & Keamanan</h3>
+            <h3>Lisensi & Keamanan</h3>
             <ul>
                 <li><strong>${pctStr(pirates, N)} responden</strong> memakai software CAD <span class="highlight danger">bajakan/crack</span> — pasar besar yang bisa dikonversi dengan produk legal gratis/murah.</li>
                 <li><strong>Alasan utama pakai bajakan:</strong> ${alasanBajak.entries.slice(0,3).map(([k,v]) => pill(`${k} (${v})`)).join(' ')}.</li>
@@ -1107,7 +1107,7 @@ function renderConclusions() {
         </div>
 
         <div class="conclusion-section">
-            <h3>🤖 Artificial Intelligence</h3>
+            <h3>Artificial Intelligence</h3>
             <ul>
                 <li><strong>${pctStr(pakaiAI, N)} responden</strong> sudah pernah memakai AI untuk membantu pekerjaan CAD — <em>adopsi AI di kalangan pelajar CAD sudah terjadi.</em></li>
                 <li><strong>Frekuensi:</strong> terbanyak <strong>${freqAI.top[0] || '—'}</strong> (${pctStr(freqAI.top[1], freqAI.respondents)}).</li>
@@ -1116,7 +1116,7 @@ function renderConclusions() {
         </div>
 
         <div class="conclusion-section">
-            <h3>🚀 Product Discovery — Penerimaan NusantaraCAD</h3>
+            <h3>Product Discovery — Penerimaan NusantaraCAD</h3>
             <ul>
                 <li><strong>Relevansi:</strong> mayoritas menjawab <strong>${relevan.top[0] || '—'}</strong> (${pctStr(relevan.top[1], relevan.respondents)}) → konsep produk <em>diterima pasar.</em></li>
                 <li><strong>Fitur paling diminati:</strong> ${fitur.entries.slice(0,3).map(([k,v]) => pill(`${k} (${v})`)).join(' ')}.</li>
@@ -1125,7 +1125,7 @@ function renderConclusions() {
         </div>
 
         <div class="conclusion-section">
-            <h3>💰 Willingness to Pay</h3>
+            <h3>Willingness to Pay</h3>
             <ul>
                 <li><strong>${pctStr(akanBayarCount, N)} responden</strong> menyatakan <span class="highlight success">akan/mungkin membayar</span> lisensi profesional setelah lulus.</li>
                 <li><strong>Rentang harga favorit:</strong> <span class="highlight">${harga.top[0] || '—'}</span> (${harga.top[1]} responden).</li>
@@ -1134,7 +1134,7 @@ function renderConclusions() {
         </div>
 
         <div class="conclusion-section">
-            <h3>💡 Rekomendasi Strategis untuk NusantaraCAD</h3>
+            <h3>Rekomendasi Strategis untuk NusantaraCAD</h3>
             <ul>
                 <li><strong>Prioritaskan AI Text-to-CAD + format .NUSCAD terpadu</strong> karena menjadi fitur paling diminati dan menyelesaikan masalah fragmentasi data.</li>
                 <li><strong>Edukasi & akuisisi pelajar</strong> lewat sekolah (${sekolahUnik} sekolah sudah terwakili) — positioning sebagai software legal & gratis akan menggeser penggunaan bajakan.</li>
@@ -1198,16 +1198,22 @@ function stamp() {
     return d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) + '-' + p(d.getHours()) + p(d.getMinutes());
 }
 
-/* PRINT*/
+/* 
+   PRINT
+    */
 document.getElementById('printBtn').addEventListener('click', () => { window.print(); });
 
-/* REFRESH*/
+/* 
+   REFRESH
+    */
 document.getElementById('refreshBtn').addEventListener('click', () => {
     showToast('Memuat ulang data...');
     loadData();
 });
 
-/* INIT*/
+/* 
+   INIT
+    */
 window.addEventListener('load', () => {
     let ok = false;
     try { ok = sessionStorage.getItem(SESSION_KEY) === '1'; } catch (e) {}
